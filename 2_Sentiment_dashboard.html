@@ -1,0 +1,857 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SentimentAI - Executive Sentiment Analytics Platform</title>
+  <script src="https://www.gstatic.com/antigravity/web/dev/tailwindcss.min.js"></script>
+</head>
+<body class="bg-transparent text-[var(--foreground)] antialiased p-3 sm:p-5">
+  <div class="max-w-6xl mx-auto space-y-4">
+
+    <!-- Top Navigation Header -->
+    <header class="bg-[var(--card)] border border-[var(--border)] rounded-2xl p-4 shadow-sm flex flex-wrap items-center justify-between gap-3">
+      <div class="flex items-center gap-3">
+        <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-600 to-indigo-600 text-white flex items-center justify-center text-xl font-bold shadow-sm">
+          ⚖️
+        </div>
+        <div>
+          <div class="flex items-center gap-2">
+            <h1 class="text-base font-bold text-[var(--foreground)] tracking-tight">SentimentAI</h1>
+            <span class="text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 rounded-full bg-blue-500/10 text-blue-500 border border-blue-500/20">
+              v2.0 Rule Engine
+            </span>
+          </div>
+          <p class="text-xs text-[var(--muted-foreground)]">SaaS Sentiment &amp; Customer Feedback Intelligence</p>
+        </div>
+      </div>
+
+      <!-- Quick Nav Tabs -->
+      <nav class="flex items-center gap-1 bg-[var(--background)] p-1 rounded-xl border border-[var(--border)] text-xs font-medium">
+        <button class="nav-tab px-3 py-1.5 rounded-lg bg-[var(--card)] text-[var(--foreground)] shadow-xs transition" data-view="overview">
+          📊 Overview
+        </button>
+        <button class="nav-tab px-3 py-1.5 rounded-lg text-[var(--muted-foreground)] hover:text-[var(--foreground)] transition" data-view="analyzer">
+          ⚡ Analyzer
+        </button>
+        <button class="nav-tab px-3 py-1.5 rounded-lg text-[var(--muted-foreground)] hover:text-[var(--foreground)] transition" data-view="history">
+          📜 History
+        </button>
+        <button class="nav-tab px-3 py-1.5 rounded-lg text-[var(--muted-foreground)] hover:text-[var(--foreground)] transition" data-view="insights">
+          🍽️ Insights
+        </button>
+      </nav>
+
+      <div class="flex items-center gap-2">
+        <div class="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-emerald-500/10 text-emerald-500 border border-emerald-500/20 text-xs font-semibold">
+          <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+          <span>Engine Active</span>
+        </div>
+        <button id="clearAllBtn" class="text-xs px-3 py-1.5 rounded-xl bg-[var(--background)] border border-[var(--border)] text-[var(--muted-foreground)] hover:text-red-500 transition cursor-pointer">
+          🗑️ Clear
+        </button>
+      </div>
+    </header>
+
+    <!-- ====================================================================
+         VIEW 1: OVERVIEW DASHBOARD
+         ==================================================================== -->
+    <div id="view-overview" class="view-panel space-y-4">
+      <!-- 4 KPI Cards -->
+      <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
+        <div class="bg-[var(--card)] border border-[var(--border)] rounded-2xl p-4 shadow-xs">
+          <div class="flex items-center justify-between text-xs text-[var(--muted-foreground)] font-semibold uppercase tracking-wider mb-2">
+            <span>Total Analyses</span>
+            <span class="text-blue-500">📑</span>
+          </div>
+          <div id="kpiTotal" class="text-2xl font-bold text-[var(--foreground)] font-mono">0</div>
+          <div class="text-[11px] text-[var(--muted-foreground)] mt-1">reviews evaluated</div>
+        </div>
+
+        <div class="bg-[var(--card)] border border-[var(--border)] rounded-2xl p-4 shadow-xs">
+          <div class="flex items-center justify-between text-xs text-emerald-500 font-semibold uppercase tracking-wider mb-2">
+            <span>Positive</span>
+            <span>👍</span>
+          </div>
+          <div id="kpiPos" class="text-2xl font-bold text-emerald-500 font-mono">0</div>
+          <div class="text-[11px] text-[var(--muted-foreground)] mt-1"><span id="kpiPosPct" class="font-bold text-emerald-500">0%</span> of total</div>
+        </div>
+
+        <div class="bg-[var(--card)] border border-[var(--border)] rounded-2xl p-4 shadow-xs">
+          <div class="flex items-center justify-between text-xs text-rose-500 font-semibold uppercase tracking-wider mb-2">
+            <span>Negative</span>
+            <span>👎</span>
+          </div>
+          <div id="kpiNeg" class="text-2xl font-bold text-rose-500 font-mono">0</div>
+          <div class="text-[11px] text-[var(--muted-foreground)] mt-1"><span id="kpiNegPct" class="font-bold text-rose-500">0%</span> complaints</div>
+        </div>
+
+        <div class="bg-[var(--card)] border border-[var(--border)] rounded-2xl p-4 shadow-xs">
+          <div class="flex items-center justify-between text-xs text-[var(--muted-foreground)] font-semibold uppercase tracking-wider mb-2">
+            <span>Avg Score</span>
+            <span>⚖️</span>
+          </div>
+          <div id="kpiAvg" class="text-2xl font-bold text-[var(--foreground)] font-mono">0.0</div>
+          <div class="text-[11px] text-[var(--muted-foreground)] mt-1"><span id="kpiStatus" class="font-bold">Neutral</span> rating</div>
+        </div>
+      </div>
+
+      <!-- Charts Row: Donut + Line Trend -->
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <!-- Sentiment Distribution Donut -->
+        <div class="bg-[var(--card)] border border-[var(--border)] rounded-2xl p-4 shadow-xs">
+          <div class="flex items-center justify-between mb-2">
+            <span class="text-xs font-bold uppercase tracking-wider text-[var(--muted-foreground)]">Sentiment Distribution</span>
+            <span class="text-[10px] text-[var(--muted-foreground)]">Donut Chart</span>
+          </div>
+          <div id="donutChartContainer" class="min-h-[180px] flex items-center justify-center"></div>
+        </div>
+
+        <!-- Score Trend Line Chart -->
+        <div class="bg-[var(--card)] border border-[var(--border)] rounded-2xl p-4 shadow-xs">
+          <div class="flex items-center justify-between mb-2">
+            <span class="text-xs font-bold uppercase tracking-wider text-[var(--muted-foreground)]">Sentiment Trajectory</span>
+            <span class="text-[10px] text-[var(--muted-foreground)]">Zero Baseline Trend</span>
+          </div>
+          <div id="trendChartContainer" class="min-h-[180px] flex items-center justify-center"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ====================================================================
+         VIEW 2: SENTIMENT ANALYZER WORKSPACE
+         ==================================================================== -->
+    <div id="view-analyzer" class="view-panel hidden space-y-4">
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <!-- Input Card -->
+        <div class="bg-[var(--card)] border border-[var(--border)] rounded-2xl p-4 shadow-xs space-y-3">
+          <div class="flex items-center justify-between">
+            <span class="text-xs font-bold uppercase tracking-wider text-[var(--muted-foreground)]">Customer Review Input</span>
+            <span class="text-[11px] text-[var(--muted-foreground)]">Press <kbd class="px-1.5 py-0.5 bg-[var(--background)] border border-[var(--border)] rounded text-[10px]">Ctrl+Enter</kbd></span>
+          </div>
+
+          <!-- Error Alert -->
+          <div id="inputErrorAlert" class="hidden p-2.5 bg-red-500/10 border border-red-500/20 text-red-500 text-xs rounded-xl">
+            Please enter some text to analyze.
+          </div>
+
+          <textarea
+            id="reviewTextarea"
+            rows="4"
+            class="w-full bg-[var(--background)] text-[var(--foreground)] border border-[var(--border)] focus:border-blue-500 rounded-xl p-3 text-sm resize-none outline-none transition"
+            placeholder="Enter customer feedback or dining review to analyze..."
+          ></textarea>
+
+          <div class="flex justify-between text-xs text-[var(--muted-foreground)]">
+            <span id="charCountLabel">0 characters</span>
+            <span id="wordCountLabel">0 words</span>
+          </div>
+
+          <div class="flex items-center gap-2">
+            <button id="analyzeSubmitBtn" class="flex-1 bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded-xl text-xs transition shadow-xs flex items-center justify-center gap-1.5 cursor-pointer">
+              <span>⚡ Analyze Sentiment</span>
+            </button>
+            <button id="clearInputBtn" class="bg-[var(--background)] hover:bg-[var(--border)] text-[var(--foreground)] border border-[var(--border)] text-xs font-medium py-2 px-3 rounded-xl transition cursor-pointer">
+              Clear
+            </button>
+          </div>
+
+          <!-- Sample Reviews -->
+          <div class="pt-2 border-t border-dashed border-[var(--border)] space-y-1.5">
+            <span class="text-[10px] font-bold uppercase tracking-wider text-[var(--muted-foreground)] block">Sample Customer Reviews:</span>
+            <div class="space-y-1 text-xs">
+              <button class="sample-btn w-full text-left p-2 rounded-lg bg-[var(--background)] hover:border-blue-500 hover:text-blue-500 text-[var(--muted-foreground)] border border-[var(--border)] transition truncate cursor-pointer" data-text="The food was delicious and delivery was quick.">
+                “The food was delicious and delivery was quick.”
+              </button>
+              <button class="sample-btn w-full text-left p-2 rounded-lg bg-[var(--background)] hover:border-blue-500 hover:text-blue-500 text-[var(--muted-foreground)] border border-[var(--border)] transition truncate cursor-pointer" data-text="The order arrived late and the food was cold.">
+                “The order arrived late and the food was cold.”
+              </button>
+              <button class="sample-btn w-full text-left p-2 rounded-lg bg-[var(--background)] hover:border-blue-500 hover:text-blue-500 text-[var(--muted-foreground)] border border-[var(--border)] transition truncate cursor-pointer" data-text="The service was okay.">
+                “The service was okay.”
+              </button>
+              <button class="sample-btn w-full text-left p-2 rounded-lg bg-[var(--background)] hover:border-blue-500 hover:text-blue-500 text-[var(--muted-foreground)] border border-[var(--border)] transition truncate cursor-pointer" data-text="The food was excellent, but delivery was terrible.">
+                “The food was excellent, but delivery was terrible.”
+              </button>
+              <button class="sample-btn w-full text-left p-2 rounded-lg bg-[var(--background)] hover:border-blue-500 hover:text-blue-500 text-[var(--muted-foreground)] border border-[var(--border)] transition truncate cursor-pointer" data-text="I am not happy with the experience.">
+                “I am not happy with the experience.”
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Result Card -->
+        <div class="bg-[var(--card)] border border-[var(--border)] rounded-2xl p-4 shadow-xs space-y-3">
+          <div class="flex items-center justify-between border-b border-[var(--border)] pb-2.5">
+            <span id="resultSentimentPill" class="text-xs font-bold px-3 py-1 rounded-full bg-emerald-500/10 text-emerald-500 border border-emerald-500/20">
+              Positive
+            </span>
+            <span id="resultEmotionPill" class="text-xs font-medium px-2.5 py-1 rounded-full bg-[var(--background)] border border-[var(--border)]">
+              😊 Happiness
+            </span>
+          </div>
+
+          <!-- Result Metrics -->
+          <div class="grid grid-cols-3 gap-2 text-center text-xs">
+            <div class="bg-[var(--background)] border border-[var(--border)] rounded-xl p-2.5">
+              <span class="text-[10px] uppercase font-bold text-[var(--muted-foreground)] block">Score</span>
+              <span id="resultScorePill" class="text-lg font-bold font-mono text-emerald-500 block mt-0.5">+2</span>
+            </div>
+            <div class="bg-[var(--background)] border border-[var(--border)] rounded-xl p-2.5">
+              <span class="text-[10px] uppercase font-bold text-[var(--muted-foreground)] block">Rule Conf.</span>
+              <span id="resultConfidencePill" class="text-lg font-bold font-mono text-[var(--foreground)] block mt-0.5">85%</span>
+            </div>
+            <div class="bg-[var(--background)] border border-[var(--border)] rounded-xl p-2.5">
+              <span class="text-[10px] uppercase font-bold text-[var(--muted-foreground)] block">Words</span>
+              <span id="resultWordsPill" class="text-lg font-bold font-mono text-[var(--foreground)] block mt-0.5">8</span>
+            </div>
+          </div>
+
+          <!-- Matched Keywords -->
+          <div>
+            <span class="text-[10px] font-bold uppercase tracking-wider text-[var(--muted-foreground)] block mb-1">Matched Keywords &amp; Weights:</span>
+            <div id="resultKeywordsContainer" class="flex flex-wrap gap-1.5">
+              <span class="text-xs text-[var(--muted-foreground)] italic">None</span>
+            </div>
+          </div>
+
+          <!-- Explanation -->
+          <div>
+            <span class="text-[10px] font-bold uppercase tracking-wider text-[var(--muted-foreground)] block mb-1">Rule-Based Reasoning:</span>
+            <p id="resultExplanationText" class="text-xs p-2.5 bg-[var(--background)] border border-[var(--border)] rounded-xl text-[var(--foreground)] leading-relaxed">
+              Keywords matched positive range.
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ====================================================================
+         VIEW 3: SEARCHABLE & FILTERABLE HISTORY TABLE
+         ==================================================================== -->
+    <div id="view-history" class="view-panel hidden space-y-4">
+      <div class="bg-[var(--card)] border border-[var(--border)] rounded-2xl p-4 shadow-xs space-y-3">
+        <div class="flex flex-wrap items-center justify-between gap-2">
+          <input
+            type="text"
+            id="historySearchInput"
+            class="bg-[var(--background)] border border-[var(--border)] text-xs rounded-xl px-3 py-1.5 text-[var(--foreground)] w-48 outline-none"
+            placeholder="Search reviews..."
+          />
+          <div class="flex items-center gap-2">
+            <select id="historyFilterSelect" class="bg-[var(--background)] border border-[var(--border)] text-xs rounded-xl px-2.5 py-1.5 text-[var(--foreground)] outline-none">
+              <option value="ALL">All Sentiments</option>
+              <option value="Positive">Positive</option>
+              <option value="Very Positive">Very Positive</option>
+              <option value="Neutral">Neutral</option>
+              <option value="Negative">Negative</option>
+              <option value="Very Negative">Very Negative</option>
+              <option value="Mixed">Mixed</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="overflow-x-auto border border-[var(--border)] rounded-xl">
+          <table class="w-full text-left text-xs border-collapse">
+            <thead class="bg-[var(--background)] text-[var(--muted-foreground)] uppercase text-[10px] border-b border-[var(--border)]">
+              <tr>
+                <th class="p-3">Review</th>
+                <th class="p-3">Sentiment</th>
+                <th class="p-3">Score</th>
+                <th class="p-3">Emotion</th>
+                <th class="p-3">Time</th>
+              </tr>
+            </thead>
+            <tbody id="historyTableRows" class="divide-y divide-[var(--border)]">
+              <tr>
+                <td colspan="5" class="p-6 text-center text-[var(--muted-foreground)]">No review history recorded yet.</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- ====================================================================
+         VIEW 4: CUSTOMER FEEDBACK INSIGHTS (ZOMATO ASPECT CATEGORIZATION)
+         ==================================================================== -->
+    <div id="view-insights" class="view-panel hidden space-y-4">
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <!-- Top Keywords -->
+        <div class="bg-[var(--card)] border border-[var(--border)] rounded-2xl p-4 shadow-xs space-y-3">
+          <span class="text-xs font-bold uppercase tracking-wider text-[var(--muted-foreground)] block">Keyword Triggers</span>
+          <div class="grid grid-cols-2 gap-3 text-xs">
+            <div>
+              <span class="text-[10px] font-bold text-emerald-500 uppercase block mb-1">Top Positive Words</span>
+              <div id="topPosWordsList" class="space-y-1 font-mono text-[var(--foreground)]">
+                <span class="text-muted italic text-[11px]">None yet</span>
+              </div>
+            </div>
+            <div>
+              <span class="text-[10px] font-bold text-rose-500 uppercase block mb-1">Top Negative Words</span>
+              <div id="topNegWordsList" class="space-y-1 font-mono text-[var(--foreground)]">
+                <span class="text-muted italic text-[11px]">None yet</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Emotion Bar Chart -->
+        <div class="bg-[var(--card)] border border-[var(--border)] rounded-2xl p-4 shadow-xs space-y-3">
+          <span class="text-xs font-bold uppercase tracking-wider text-[var(--muted-foreground)] block">Emotion Frequency</span>
+          <div id="emotionBarChartContainer"></div>
+        </div>
+      </div>
+
+      <!-- Zomato Aspect Categorization -->
+      <div class="bg-[var(--card)] border border-[var(--border)] rounded-2xl p-4 shadow-xs space-y-3">
+        <div class="flex items-center justify-between">
+          <span class="text-xs font-bold uppercase tracking-wider text-[var(--muted-foreground)]">Zomato Aspect Extraction</span>
+          <span class="text-[10px] bg-blue-500/10 text-blue-500 px-2 py-0.5 rounded-full border border-blue-500/20">Rule-Based Taxonomy</span>
+        </div>
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-2.5" id="aspectsCardsGrid"></div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Inline Script: Engine, Visualization & UI Logic -->
+  <script>
+    (function () {
+      'use strict';
+
+      // 1. Lexicons & Rules
+      const SENTIMENT_LEXICON = {
+        amazing: 3, excellent: 3, awesome: 3, fantastic: 3, wonderful: 3, brilliant: 3, outstanding: 3, perfect: 3, delicious: 3,
+        great: 2, love: 2, loved: 2, happy: 2, pleased: 2, joy: 2, joyful: 2, excited: 2, exciting: 2, thrilled: 2,
+        quick: 2, fresh: 2, tasty: 2, yummy: 2, helpful: 2, clean: 2, fast: 2, reliable: 2,
+        good: 1, nice: 1, like: 1, liked: 1, fine: 1, decent: 1, pleasant: 1, glad: 1, satisfied: 1, useful: 1, okay: 0.5, ok: 0.5,
+        bad: -1, poor: -1, dislike: -1, annoying: -1, slow: -1, confusing: -1, unhappy: -1, ugly: -1, cold: -1, delay: -1,
+        sad: -2, disappointing: -2, disappointed: -2, frustrated: -2, useless: -2, broken: -2, rude: -2, angry: -2, mad: -2,
+        late: -2, delayed: -2, stale: -2, soggy: -2, burnt: -2,
+        terrible: -3, awful: -3, horrible: -3, worst: -3, hate: -3, hated: -3, dreadful: -3, disastrous: -3, furious: -3
+      };
+
+      const NEGATION_WORDS = new Set([
+        'not', 'never', 'no', 'none', 'neither', 'nor', 'without',
+        "isn't", 'isnt', "wasn't", 'wasnt', "aren't", 'arent', "weren't", 'werent',
+        "don't", 'dont', "didn't", 'didnt', "doesn't", 'doesnt',
+        'cannot', "can't", 'cant', "couldn't", 'couldnt',
+        "won't", 'wont', "wouldn't", 'wouldnt', "shouldn't", 'shouldnt'
+      ]);
+
+      const CONTRASTIVE = new Set(['but', 'however', 'although', 'though', 'yet', 'nevertheless', 'while', 'except']);
+
+      const EMOTIONS = {
+        happiness: { name: 'Happiness', emoji: '😊', color: '#10b981', keywords: ['happy', 'joy', 'joyful', 'pleased', 'delighted', 'glad', 'cheerful', 'satisfied', 'delicious', 'tasty', 'fresh'] },
+        sadness: { name: 'Sadness', emoji: '😢', color: '#3b82f6', keywords: ['sad', 'unhappy', 'sorrow', 'crying', 'depressed', 'disappointed', 'disappointing', 'cold'] },
+        anger: { name: 'Anger', emoji: '😡', color: '#ef4444', keywords: ['angry', 'mad', 'furious', 'outraged', 'irritated', 'annoyed', 'terrible', 'awful', 'horrible', 'hate', 'worst', 'late', 'delayed'] },
+        fear: { name: 'Fear', emoji: '😨', color: '#8b5cf6', keywords: ['afraid', 'scared', 'fearful', 'terrified', 'anxious', 'worried'] },
+        love: { name: 'Love', emoji: '❤️', color: '#ec4899', keywords: ['love', 'loved', 'loving', 'adore', 'adored', 'cherish'] },
+        excitement: { name: 'Excitement', emoji: '🤩', color: '#f59e0b', keywords: ['excited', 'exciting', 'thrilled', 'amazing', 'awesome', 'fantastic', 'wonderful', 'quick'] }
+      };
+
+      const ASPECTS = {
+        food: { name: 'Food Quality', icon: '🍲', terms: ['food', 'meal', 'dish', 'delicious', 'tasty', 'flavor', 'taste', 'cold', 'hot', 'fresh', 'stale', 'soggy', 'burnt'] },
+        delivery: { name: 'Delivery Speed', icon: '🛵', terms: ['delivery', 'courier', 'driver', 'rider', 'quick', 'fast', 'late', 'delay', 'delayed', 'arrive', 'arrived', 'time', 'order'] },
+        packaging: { name: 'Packaging', icon: '📦', terms: ['package', 'packaging', 'packed', 'box', 'container', 'spill', 'spilled', 'leak', 'leaked', 'seal'] },
+        service: { name: 'Service', icon: '🛎️', terms: ['service', 'staff', 'support', 'behavior', 'polite', 'rude', 'helpful', 'manager'] }
+      };
+
+      // 2. Engine Function
+      function analyze(raw) {
+        const text = (raw || '').trim().replace(/\s+/g, ' ');
+        if (!text) return { isValid: false, error: 'Please enter text' };
+
+        const tokens = (text.match(/[A-Za-z0-9]+(?:'[A-Za-z0-9]+)?|[.,;:!?()]/g) || []).map(m => ({
+          raw: m,
+          clean: m.toLowerCase().replace(/^[^\w]+|[^\w]+$/g, ''),
+          isPunct: /^[.,;:!?()]$/.test(m),
+          isBoundary: /[,.;:!?]/.test(m)
+        }));
+
+        const wordTokens = tokens.filter(t => !t.isPunct);
+        let activeNegator = null;
+        let activeNegatorIdx = -1;
+
+        let totalScore = 0;
+        let posComp = 0;
+        let negComp = 0;
+        let hasContrastive = false;
+        const detectedKeywords = [];
+        const emotionCounts = {};
+
+        for (let i = 0; i < tokens.length; i++) {
+          const t = tokens[i];
+          if (t.isBoundary) {
+            activeNegator = null;
+            activeNegatorIdx = -1;
+            continue;
+          }
+
+          const w = t.clean;
+          if (!w) continue;
+
+          if (CONTRASTIVE.has(w)) {
+            hasContrastive = true;
+            activeNegator = null;
+            continue;
+          }
+
+          if (NEGATION_WORDS.has(w)) {
+            activeNegator = w;
+            activeNegatorIdx = i;
+            continue;
+          }
+
+          if (activeNegator && (i - activeNegatorIdx > 3)) {
+            activeNegator = null;
+          }
+
+          if (Object.prototype.hasOwnProperty.call(SENTIMENT_LEXICON, w)) {
+            const baseWeight = SENTIMENT_LEXICON[w];
+            let effWeight = baseWeight;
+            const isNeg = !!activeNegator;
+
+            if (isNeg) {
+              effWeight = baseWeight > 0 ? -Math.abs(baseWeight) : 1;
+            }
+
+            totalScore += effWeight;
+            if (effWeight > 0) posComp += effWeight;
+            else if (effWeight < 0) negComp += effWeight;
+
+            detectedKeywords.push({ word: w, raw: t.raw, baseWeight, effWeight, isNeg });
+          }
+
+          for (const [emId, emData] of Object.entries(EMOTIONS)) {
+            if (emData.keywords.includes(w)) {
+              if (!activeNegator) {
+                emotionCounts[emId] = (emotionCounts[emId] || 0) + 1;
+              }
+            }
+          }
+        }
+
+        let primaryEmotion = { name: 'Neutral', emoji: '😐', id: 'neutral' };
+        if (Object.keys(emotionCounts).length > 0) {
+          const topKey = Object.entries(emotionCounts).sort((a, b) => b[1] - a[1])[0][0];
+          primaryEmotion = { ...EMOTIONS[topKey], id: topKey };
+        }
+
+        let classification = 'Neutral';
+        const kwCount = detectedKeywords.length;
+        if (kwCount > 0) {
+          const hasOpposing = posComp >= 1 && negComp <= -1;
+          const isStrongMixed = posComp >= 1.5 && Math.abs(negComp) >= 1.5;
+
+          if (isStrongMixed || (hasContrastive && hasOpposing)) {
+            classification = 'Mixed';
+          } else if (totalScore >= 3) {
+            classification = 'Very Positive';
+          } else if (totalScore >= 1) {
+            classification = 'Positive';
+          } else if (totalScore <= -3) {
+            classification = 'Very Negative';
+          } else if (totalScore <= -1) {
+            classification = 'Negative';
+          } else {
+            classification = 'Neutral';
+          }
+        }
+
+        let ruleConfidence = 0;
+        if (kwCount > 0) {
+          ruleConfidence = Math.min(98, Math.round(45 + Math.min(30, kwCount * 14) + Math.min(20, Math.abs(totalScore) * 5)));
+        }
+
+        return {
+          isValid: true,
+          input: text,
+          totalWordCount: wordTokens.length,
+          totalScore: Number(totalScore.toFixed(1)),
+          posComp,
+          negComp,
+          classification,
+          ruleConfidence,
+          primaryEmotion,
+          detectedKeywords,
+          timestamp: new Date().toISOString()
+        };
+      }
+
+      // 3. Application State & Storage
+      let sessionHistory = [];
+
+      // DOM References
+      const navTabs = document.querySelectorAll('.nav-tab');
+      const viewPanels = document.querySelectorAll('.view-panel');
+      const reviewTextarea = document.getElementById('reviewTextarea');
+      const analyzeSubmitBtn = document.getElementById('analyzeSubmitBtn');
+      const clearInputBtn = document.getElementById('clearInputBtn');
+      const inputErrorAlert = document.getElementById('inputErrorAlert');
+      const charCountLabel = document.getElementById('charCountLabel');
+      const wordCountLabel = document.getElementById('wordCountLabel');
+
+      // KPI Elements
+      const kpiTotal = document.getElementById('kpiTotal');
+      const kpiPos = document.getElementById('kpiPos');
+      const kpiPosPct = document.getElementById('kpiPosPct');
+      const kpiNeg = document.getElementById('kpiNeg');
+      const kpiNegPct = document.getElementById('kpiNegPct');
+      const kpiAvg = document.getElementById('kpiAvg');
+      const kpiStatus = document.getElementById('kpiStatus');
+
+      // Results Elements
+      const resultSentimentPill = document.getElementById('resultSentimentPill');
+      const resultEmotionPill = document.getElementById('resultEmotionPill');
+      const resultScorePill = document.getElementById('resultScorePill');
+      const resultConfidencePill = document.getElementById('resultConfidencePill');
+      const resultWordsPill = document.getElementById('resultWordsPill');
+      const resultKeywordsContainer = document.getElementById('resultKeywordsContainer');
+      const resultExplanationText = document.getElementById('resultExplanationText');
+
+      // Navigation Switch
+      navTabs.forEach(tab => {
+        tab.addEventListener('click', () => {
+          const view = tab.dataset.view;
+          navTabs.forEach(t => {
+            t.classList.remove('bg-[var(--card)]', 'text-[var(--foreground)]', 'shadow-xs');
+            t.classList.add('text-[var(--muted-foreground)]');
+          });
+          tab.classList.add('bg-[var(--card)]', 'text-[var(--foreground)]', 'shadow-xs');
+          tab.classList.remove('text-[var(--muted-foreground)]');
+
+          viewPanels.forEach(p => {
+            if (p.id === `view-${view}`) p.classList.remove('hidden');
+            else p.classList.add('hidden');
+          });
+
+          renderCharts();
+        });
+      });
+
+      // Input Meta
+      function updateMeta() {
+        const val = reviewTextarea.value;
+        charCountLabel.textContent = `${val.length} character${val.length === 1 ? '' : 's'}`;
+        const words = val.trim() ? val.trim().split(/\s+/).length : 0;
+        wordCountLabel.textContent = `${words} word${words === 1 ? '' : 's'}`;
+      }
+      reviewTextarea.addEventListener('input', () => {
+        updateMeta();
+        inputErrorAlert.classList.add('hidden');
+      });
+
+      // Sample clicks
+      document.querySelectorAll('.sample-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          reviewTextarea.value = btn.dataset.text;
+          updateMeta();
+          runAnalysis();
+        });
+      });
+
+      // Clear
+      clearInputBtn.addEventListener('click', () => {
+        reviewTextarea.value = '';
+        updateMeta();
+        inputErrorAlert.classList.add('hidden');
+        reviewTextarea.focus();
+      });
+
+      document.getElementById('clearAllBtn').addEventListener('click', () => {
+        if (confirm('Clear all session data?')) {
+          sessionHistory = [];
+          updateAllViews();
+        }
+      });
+
+      // Run Analysis
+      function runAnalysis() {
+        const raw = reviewTextarea.value;
+        inputErrorAlert.classList.add('hidden');
+        const res = analyze(raw);
+
+        if (!res.isValid) {
+          inputErrorAlert.classList.remove('hidden');
+          return;
+        }
+
+        sessionHistory.unshift(res);
+        updateAllViews();
+      }
+
+      analyzeSubmitBtn.addEventListener('click', runAnalysis);
+      reviewTextarea.addEventListener('keydown', (e) => {
+        if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
+          e.preventDefault();
+          runAnalysis();
+        }
+      });
+
+      // Rendering Helpers
+      function updateAllViews() {
+        const total = sessionHistory.length;
+        let pos = 0, neg = 0, neu = 0, mix = 0, sumScore = 0;
+
+        sessionHistory.forEach(h => {
+          sumScore += h.totalScore;
+          if (h.classification === 'Positive' || h.classification === 'Very Positive') pos++;
+          else if (h.classification === 'Negative' || h.classification === 'Very Negative') neg++;
+          else if (h.classification === 'Mixed') mix++;
+          else neu++;
+        });
+
+        const avg = total > 0 ? sumScore / total : 0;
+        const posPct = total > 0 ? Math.round((pos / total) * 100) : 0;
+        const negPct = total > 0 ? Math.round((neg / total) * 100) : 0;
+
+        kpiTotal.textContent = total;
+        kpiPos.textContent = pos;
+        kpiPosPct.textContent = `${posPct}%`;
+        kpiNeg.textContent = neg;
+        kpiNegPct.textContent = `${negPct}%`;
+        kpiAvg.textContent = avg > 0 ? `+${avg.toFixed(1)}` : avg.toFixed(1);
+
+        let overall = 'Neutral';
+        if (pos > neg && pos >= neu && pos >= mix) overall = 'Positive';
+        else if (neg > pos && neg >= neu && neg >= mix) overall = 'Negative';
+        else if (mix > pos && mix > neg) overall = 'Mixed';
+        kpiStatus.textContent = overall;
+
+        // Update workspace result card with latest
+        if (sessionHistory.length > 0) {
+          const latest = sessionHistory[0];
+          resultSentimentPill.textContent = latest.classification;
+          resultEmotionPill.textContent = `${latest.primaryEmotion.emoji} ${latest.primaryEmotion.name}`;
+          resultScorePill.textContent = latest.totalScore > 0 ? `+${latest.totalScore}` : latest.totalScore;
+          resultConfidencePill.textContent = `${latest.ruleConfidence}%`;
+          resultWordsPill.textContent = latest.totalWordCount;
+
+          if (latest.detectedKeywords.length > 0) {
+            resultKeywordsContainer.innerHTML = latest.detectedKeywords.map(k => {
+              const isPos = k.effWeight > 0;
+              const col = isPos ? 'bg-emerald-500/10 text-emerald-500 border-emerald-500/20' : 'bg-rose-500/10 text-rose-500 border-rose-500/20';
+              return `<span class="px-2 py-0.5 rounded text-[11px] font-mono border ${col}">${k.word} (${k.effWeight > 0 ? '+' : ''}${k.effWeight})</span>`;
+            }).join('');
+          } else {
+            resultKeywordsContainer.innerHTML = `<span class="text-xs text-[var(--muted-foreground)] italic">No keywords detected</span>`;
+          }
+
+          resultExplanationText.textContent = `Assigned "${latest.classification}" based on net score of ${latest.totalScore > 0 ? '+' : ''}${latest.totalScore} with Rule Confidence of ${latest.ruleConfidence}%.`;
+        }
+
+        renderCharts();
+        renderHistoryTable();
+        renderInsights();
+      }
+
+      // Charts Rendering
+      function renderCharts() {
+        const total = sessionHistory.length;
+        let pos = 0, neg = 0, neu = 0, mix = 0;
+        sessionHistory.forEach(h => {
+          if (h.classification === 'Positive' || h.classification === 'Very Positive') pos++;
+          else if (h.classification === 'Negative' || h.classification === 'Very Negative') neg++;
+          else if (h.classification === 'Mixed') mix++;
+          else neu++;
+        });
+
+        // 1. Donut
+        const donutEl = document.getElementById('donutChartContainer');
+        if (total === 0) {
+          donutEl.innerHTML = `<span class="text-xs text-[var(--muted-foreground)]">No feedback analyzed yet</span>`;
+        } else {
+          const radius = 35;
+          const circ = 2 * Math.PI * radius;
+          let offset = 0;
+          const slices = [
+            { count: pos, color: '#10b981', label: 'Positive' },
+            { count: neg, color: '#ef4444', label: 'Negative' },
+            { count: neu, color: '#64748b', label: 'Neutral' },
+            { count: mix, color: '#f59e0b', label: 'Mixed' }
+          ].map(s => {
+            if (s.count === 0) return '';
+            const len = (s.count / total) * circ;
+            const str = `<circle cx="50" cy="50" r="${radius}" fill="none" stroke="${s.color}" stroke-width="14" stroke-dasharray="${len.toFixed(2)} ${(circ - len).toFixed(2)}" stroke-dashoffset="${(-offset).toFixed(2)}" class="-rotate-90 origin-center transition-all duration-300" />`;
+            offset += len;
+            return str;
+          }).join('');
+
+          donutEl.innerHTML = `
+            <div class="flex items-center justify-around w-full">
+              <div class="relative w-32 h-32 flex items-center justify-center">
+                <svg viewBox="0 0 100 100" class="w-full h-full">
+                  <circle cx="50" cy="50" r="${radius}" fill="none" stroke="currentColor" stroke-width="14" class="text-[var(--border)] opacity-30" />
+                  ${slices}
+                </svg>
+                <div class="absolute inset-0 flex flex-col items-center justify-center font-mono">
+                  <span class="text-xl font-bold">${total}</span>
+                  <span class="text-[9px] uppercase text-[var(--muted-foreground)]">Total</span>
+                </div>
+              </div>
+              <div class="space-y-1 text-xs">
+                <div class="flex items-center gap-2"><span class="w-2 h-2 rounded-full bg-emerald-500"></span><span>Pos: ${pos} (${Math.round((pos/total)*100)}%)</span></div>
+                <div class="flex items-center gap-2"><span class="w-2 h-2 rounded-full bg-rose-500"></span><span>Neg: ${neg} (${Math.round((neg/total)*100)}%)</span></div>
+                <div class="flex items-center gap-2"><span class="w-2 h-2 rounded-full bg-slate-400"></span><span>Neu: ${neu} (${Math.round((neu/total)*100)}%)</span></div>
+                <div class="flex items-center gap-2"><span class="w-2 h-2 rounded-full bg-amber-500"></span><span>Mix: ${mix} (${Math.round((mix/total)*100)}%)</span></div>
+              </div>
+            </div>
+          `;
+        }
+
+        // 2. Trend Line Chart
+        const trendEl = document.getElementById('trendChartContainer');
+        if (total === 0) {
+          trendEl.innerHTML = `<span class="text-xs text-[var(--muted-foreground)]">No trend data available</span>`;
+        } else {
+          const chronological = [...sessionHistory].reverse().slice(-15);
+          const w = 320, h = 130, pad = 25;
+          const zeroY = h / 2;
+          const pts = chronological.map((c, i) => {
+            const x = chronological.length === 1 ? w / 2 : pad + (i / (chronological.length - 1)) * (w - pad * 2);
+            const y = zeroY - (c.totalScore / 3.5) * (h / 2 - 15);
+            return `${x.toFixed(1)},${y.toFixed(1)}`;
+          }).join(' ');
+
+          trendEl.innerHTML = `
+            <svg viewBox="0 0 ${w} ${h}" class="w-full h-auto">
+              <line x1="${pad}" y1="${zeroY}" x2="${w - pad}" y2="${zeroY}" stroke="currentColor" stroke-dasharray="3 3" class="text-[var(--border)] opacity-60" />
+              <text x="${pad - 6}" y="${zeroY + 3}" text-anchor="end" class="text-[9px] fill-[var(--muted-foreground)] font-mono">0</text>
+              ${chronological.length > 1 ? `<polyline points="${pts}" fill="none" stroke="#3b82f6" stroke-width="2" />` : ''}
+              ${chronological.map((c, i) => {
+                const x = chronological.length === 1 ? w / 2 : pad + (i / (chronological.length - 1)) * (w - pad * 2);
+                const y = zeroY - (c.totalScore / 3.5) * (h / 2 - 15);
+                const col = c.totalScore > 0 ? '#10b981' : c.totalScore < 0 ? '#ef4444' : '#64748b';
+                return `<circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="3.5" fill="${col}" stroke="var(--card)" stroke-width="1.5"><title>#${i+1}: ${c.totalScore}</title></circle>`;
+              }).join('')}
+            </svg>
+          `;
+        }
+
+        // 3. Emotion Bar Chart
+        const emEl = document.getElementById('emotionBarChartContainer');
+        const emFreq = {};
+        sessionHistory.forEach(h => {
+          if (h.primaryEmotion && h.primaryEmotion.id !== 'neutral') {
+            emFreq[h.primaryEmotion.id] = (emFreq[h.primaryEmotion.id] || 0) + 1;
+          }
+        });
+        const maxEm = Math.max(...Object.values(emFreq), 1);
+        emEl.innerHTML = Object.entries(EMOTIONS).map(([id, em]) => {
+          const count = emFreq[id] || 0;
+          const pct = Math.round((count / maxEm) * 100);
+          return `
+            <div class="space-y-1 text-xs">
+              <div class="flex justify-between">
+                <span>${em.emoji} ${em.name}</span>
+                <span class="font-mono font-bold">${count}</span>
+              </div>
+              <div class="h-2 rounded-full bg-[var(--background)] overflow-hidden">
+                <div class="h-full rounded-full transition-all duration-300" style="width: ${pct}%; background-color: ${em.color}"></div>
+              </div>
+            </div>
+          `;
+        }).join('');
+      }
+
+      // History Table
+      function renderHistoryTable() {
+        const q = (document.getElementById('historySearchInput').value || '').toLowerCase().trim();
+        const filter = document.getElementById('historyFilterSelect').value;
+        const rowsEl = document.getElementById('historyTableRows');
+
+        const filtered = sessionHistory.filter(h => {
+          if (q && !h.input.toLowerCase().includes(q)) return false;
+          if (filter !== 'ALL' && h.classification !== filter) return false;
+          return true;
+        });
+
+        if (filtered.length === 0) {
+          rowsEl.innerHTML = `<tr><td colspan="5" class="p-6 text-center text-[var(--muted-foreground)]">No matching reviews.</td></tr>`;
+          return;
+        }
+
+        rowsEl.innerHTML = filtered.map(h => {
+          const timeStr = new Date(h.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+          const col = h.classification.includes('Positive') ? 'text-emerald-500' : h.classification.includes('Negative') ? 'text-rose-500' : 'text-slate-400';
+          return `
+            <tr class="hover:bg-[var(--background)]/50 transition">
+              <td class="p-3 font-medium max-w-xs truncate" title="${escapeHtml(h.input)}">"${escapeHtml(h.input)}"</td>
+              <td class="p-3 font-semibold ${col}">${h.classification}</td>
+              <td class="p-3 font-mono">${h.totalScore > 0 ? '+' : ''}${h.totalScore}</td>
+              <td class="p-3">${h.primaryEmotion.emoji} ${h.primaryEmotion.name}</td>
+              <td class="p-3 text-[var(--muted-foreground)] text-[11px]">${timeStr}</td>
+            </tr>
+          `;
+        }).join('');
+      }
+
+      function escapeHtml(str) {
+        if (!str) return '';
+        return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#039;');
+      }
+
+      document.getElementById('historySearchInput').addEventListener('input', renderHistoryTable);
+      document.getElementById('historyFilterSelect').addEventListener('change', renderHistoryTable);
+
+      // Insights & Zomato Aspects
+      function renderInsights() {
+        const posMap = {}, negMap = {};
+        sessionHistory.forEach(h => {
+          (h.detectedKeywords || []).forEach(k => {
+            if (k.effWeight > 0) posMap[k.word] = (posMap[k.word] || 0) + 1;
+            else if (k.effWeight < 0) negMap[k.word] = (negMap[k.word] || 0) + 1;
+          });
+        });
+
+        const topPos = Object.entries(posMap).sort((a,b)=>b[1]-a[1]).slice(0, 5);
+        const topNeg = Object.entries(negMap).sort((a,b)=>b[1]-a[1]).slice(0, 5);
+
+        document.getElementById('topPosWordsList').innerHTML = topPos.length > 0 ? topPos.map(([w, c]) => `<div class="flex justify-between"><span>${w}</span><span class="text-emerald-500">${c}x</span></div>`).join('') : '<span class="text-muted italic text-[11px]">None</span>';
+        document.getElementById('topNegWordsList').innerHTML = topNeg.length > 0 ? topNeg.map(([w, c]) => `<div class="flex justify-between"><span>${w}</span><span class="text-rose-500">${c}x</span></div>`).join('') : '<span class="text-muted italic text-[11px]">None</span>';
+
+        // Aspects
+        const gridEl = document.getElementById('aspectsCardsGrid');
+        gridEl.innerHTML = Object.entries(ASPECTS).map(([k, asp]) => {
+          let count = 0, p = 0, n = 0;
+          sessionHistory.forEach(h => {
+            const words = h.input.toLowerCase().split(/\W+/);
+            const hit = words.some(w => asp.terms.includes(w));
+            if (hit) {
+              count++;
+              if (h.classification.includes('Positive')) p++;
+              else if (h.classification.includes('Negative')) n++;
+            }
+          });
+
+          const pPct = count > 0 ? Math.round((p/count)*100) : 0;
+          const nPct = count > 0 ? Math.round((n/count)*100) : 0;
+
+          return `
+            <div class="p-3 bg-[var(--background)] border border-[var(--border)] rounded-xl space-y-1.5 text-xs">
+              <div class="flex justify-between font-semibold">
+                <span>${asp.icon} ${asp.name}</span>
+                <span class="text-muted text-[11px]">${count}x</span>
+              </div>
+              <div class="h-1.5 rounded-full bg-[var(--border)] flex overflow-hidden">
+                <div class="bg-emerald-500" style="width: ${pPct}%"></div>
+                <div class="bg-rose-500" style="width: ${nPct}%"></div>
+              </div>
+              <div class="flex justify-between text-[10px] text-muted">
+                <span class="text-emerald-500">${p} Pos</span>
+                <span class="text-rose-500">${n} Neg</span>
+              </div>
+            </div>
+          `;
+        }).join('');
+      }
+
+      // Initial Test Review
+      reviewTextarea.value = "The food was delicious and delivery was quick.";
+      updateMeta();
+      runAnalysis();
+    })();
+  </script>
+</body>
+</html>
