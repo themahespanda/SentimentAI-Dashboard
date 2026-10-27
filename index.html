@@ -1,790 +1,1295 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="light">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>SentimentAI - Executive Sentiment Analytics Platform</title>
-  <script src="https://www.gstatic.com/antigravity/web/dev/tailwindcss.min.js"></script>
+  <link rel="stylesheet" href="./css/style.css" />
+  <style>
+    /* Inlined Fallback Styles to ensure zero-dependency loading even if CSS file link is restricted */
+    :root {
+      --bg-page: #f8fafc;
+      --bg-sidebar: #ffffff;
+      --bg-sidebar-hover: #f1f5f9;
+      --bg-surface: #ffffff;
+      --bg-surface-subtle: #f8fafc;
+      --border-subtle: #e2e8f0;
+      --border-medium: #cbd5e1;
+      --border-focus: #3b82f6;
+      --text-primary: #0f172a;
+      --text-secondary: #475569;
+      --text-muted: #64748b;
+      --brand-primary: #2563eb;
+      --brand-primary-hover: #1d4ed8;
+      --brand-subtle: #eff6ff;
+      --brand-text: #1d4ed8;
+      --sent-pos: #10b981;
+      --sent-pos-bg: #ecfdf5;
+      --sent-pos-border: #a7f3d0;
+      --sent-pos-text: #065f46;
+      --sent-neg: #ef4444;
+      --sent-neg-bg: #fef2f2;
+      --sent-neg-border: #fecaca;
+      --sent-neg-text: #991b1b;
+      --sent-neu: #64748b;
+      --sent-neu-bg: #f8fafc;
+      --sent-neu-border: #e2e8f0;
+      --sent-neu-text: #475569;
+      --sent-mix: #f59e0b;
+      --sent-mix-bg: #fffbeb;
+      --sent-mix-border: #fde68a;
+      --sent-mix-text: #92400e;
+    }
+    [data-theme='dark'] {
+      --bg-page: #090d16;
+      --bg-sidebar: #0d121f;
+      --bg-sidebar-hover: #172033;
+      --bg-surface: #111827;
+      --bg-surface-subtle: #172235;
+      --border-subtle: #1e293b;
+      --border-medium: #334155;
+      --border-focus: #60a5fa;
+      --text-primary: #f8fafc;
+      --text-secondary: #cbd5e1;
+      --text-muted: #94a3b8;
+      --brand-primary: #3b82f6;
+      --brand-primary-hover: #60a5fa;
+      --brand-subtle: #172554;
+      --brand-text: #93c5fd;
+      --sent-pos-bg: #064e3b33;
+      --sent-pos-border: #065f46;
+      --sent-pos-text: #6ee7b7;
+      --sent-neg-bg: #7f1d1d33;
+      --sent-neg-border: #991b1b;
+      --sent-neg-text: #fca5a5;
+      --sent-neu-bg: #1e293b;
+      --sent-neu-border: #334155;
+      --sent-neu-text: #cbd5e1;
+      --sent-mix-bg: #78350f33;
+      --sent-mix-border: #92400e;
+      --sent-mix-text: #fcd34d;
+    }
+  </style>
 </head>
-<body class="bg-transparent text-[var(--foreground)] antialiased p-3 sm:p-5">
-  <div class="max-w-6xl mx-auto space-y-4">
+<body>
+  <div class="app-layout">
 
-    <!-- Top Navigation Header -->
-    <header class="bg-[var(--card)] border border-[var(--border)] rounded-2xl p-4 shadow-sm flex flex-wrap items-center justify-between gap-3">
-      <div class="flex items-center gap-3">
-        <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-600 to-indigo-600 text-white flex items-center justify-center text-xl font-bold shadow-sm">
-          ⚖️
-        </div>
-        <div>
-          <div class="flex items-center gap-2">
-            <h1 class="text-base font-bold text-[var(--foreground)] tracking-tight">SentimentAI</h1>
-            <span class="text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 rounded-full bg-blue-500/10 text-blue-500 border border-blue-500/20">
-              v2.0 Rule Engine
-            </span>
+    <!-- Collapsible Sidebar Navigation -->
+    <aside id="appSidebar" class="app-sidebar" aria-label="Sidebar Navigation">
+      <div class="sidebar-header">
+        <a href="#overview" class="sidebar-brand">
+          <div class="brand-logo-icon">⚖️</div>
+          <div class="brand-text-wrap">
+            <div class="brand-name">
+              <span>SentimentAI</span>
+              <span class="brand-tag">v2.0</span>
+            </div>
+            <span class="brand-sub">Rule-Based Intelligence</span>
           </div>
-          <p class="text-xs text-[var(--muted-foreground)]">SaaS Sentiment &amp; Customer Feedback Intelligence</p>
-        </div>
+        </a>
+        <button id="sidebarToggleBtn" class="sidebar-toggle-btn" title="Toggle Sidebar">
+          <span>◀</span>
+        </button>
       </div>
 
-      <!-- Quick Nav Tabs -->
-      <nav class="flex items-center gap-1 bg-[var(--background)] p-1 rounded-xl border border-[var(--border)] text-xs font-medium">
-        <button class="nav-tab px-3 py-1.5 rounded-lg bg-[var(--card)] text-[var(--foreground)] shadow-xs transition" data-view="overview">
-          📊 Overview
-        </button>
-        <button class="nav-tab px-3 py-1.5 rounded-lg text-[var(--muted-foreground)] hover:text-[var(--foreground)] transition" data-view="analyzer">
-          ⚡ Analyzer
-        </button>
-        <button class="nav-tab px-3 py-1.5 rounded-lg text-[var(--muted-foreground)] hover:text-[var(--foreground)] transition" data-view="history">
-          📜 History
-        </button>
-        <button class="nav-tab px-3 py-1.5 rounded-lg text-[var(--muted-foreground)] hover:text-[var(--foreground)] transition" data-view="insights">
-          🍽️ Insights
-        </button>
+      <!-- Navigation Links -->
+      <nav class="sidebar-nav">
+        <a class="nav-item active" data-view="overview">
+          <span class="nav-icon">📊</span>
+          <span class="nav-label">Overview</span>
+        </a>
+        <a class="nav-item" data-view="analyzer">
+          <span class="nav-icon">⚡</span>
+          <span class="nav-label">Sentiment Analyzer</span>
+        </a>
+        <a class="nav-item" data-view="history">
+          <span class="nav-icon">📜</span>
+          <span class="nav-label">Analysis History</span>
+        </a>
+        <a class="nav-item" data-view="emotions">
+          <span class="nav-icon">🎭</span>
+          <span class="nav-label">Emotion Insights</span>
+        </a>
+        <a class="nav-item" data-view="analytics">
+          <span class="nav-icon">📈</span>
+          <span class="nav-label">Analytics &amp; Reports</span>
+        </a>
+        <a class="nav-item" data-view="settings">
+          <span class="nav-icon">⚙️</span>
+          <span class="nav-label">Settings</span>
+        </a>
       </nav>
 
-      <div class="flex items-center gap-2">
-        <div class="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-emerald-500/10 text-emerald-500 border border-emerald-500/20 text-xs font-semibold">
-          <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
-          <span>Engine Active</span>
-        </div>
-        <button id="clearAllBtn" class="text-xs px-3 py-1.5 rounded-xl bg-[var(--background)] border border-[var(--border)] text-[var(--muted-foreground)] hover:text-red-500 transition cursor-pointer">
-          🗑️ Clear
-        </button>
-      </div>
-    </header>
-
-    <!-- ====================================================================
-         VIEW 1: OVERVIEW DASHBOARD
-         ==================================================================== -->
-    <div id="view-overview" class="view-panel space-y-4">
-      <!-- 4 KPI Cards -->
-      <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
-        <div class="bg-[var(--card)] border border-[var(--border)] rounded-2xl p-4 shadow-xs">
-          <div class="flex items-center justify-between text-xs text-[var(--muted-foreground)] font-semibold uppercase tracking-wider mb-2">
-            <span>Total Analyses</span>
-            <span class="text-blue-500">📑</span>
-          </div>
-          <div id="kpiTotal" class="text-2xl font-bold text-[var(--foreground)] font-mono">0</div>
-          <div class="text-[11px] text-[var(--muted-foreground)] mt-1">reviews evaluated</div>
-        </div>
-
-        <div class="bg-[var(--card)] border border-[var(--border)] rounded-2xl p-4 shadow-xs">
-          <div class="flex items-center justify-between text-xs text-emerald-500 font-semibold uppercase tracking-wider mb-2">
-            <span>Positive</span>
-            <span>👍</span>
-          </div>
-          <div id="kpiPos" class="text-2xl font-bold text-emerald-500 font-mono">0</div>
-          <div class="text-[11px] text-[var(--muted-foreground)] mt-1"><span id="kpiPosPct" class="font-bold text-emerald-500">0%</span> of total</div>
-        </div>
-
-        <div class="bg-[var(--card)] border border-[var(--border)] rounded-2xl p-4 shadow-xs">
-          <div class="flex items-center justify-between text-xs text-rose-500 font-semibold uppercase tracking-wider mb-2">
-            <span>Negative</span>
-            <span>👎</span>
-          </div>
-          <div id="kpiNeg" class="text-2xl font-bold text-rose-500 font-mono">0</div>
-          <div class="text-[11px] text-[var(--muted-foreground)] mt-1"><span id="kpiNegPct" class="font-bold text-rose-500">0%</span> complaints</div>
-        </div>
-
-        <div class="bg-[var(--card)] border border-[var(--border)] rounded-2xl p-4 shadow-xs">
-          <div class="flex items-center justify-between text-xs text-[var(--muted-foreground)] font-semibold uppercase tracking-wider mb-2">
-            <span>Avg Score</span>
-            <span>⚖️</span>
-          </div>
-          <div id="kpiAvg" class="text-2xl font-bold text-[var(--foreground)] font-mono">0.0</div>
-          <div class="text-[11px] text-[var(--muted-foreground)] mt-1"><span id="kpiStatus" class="font-bold">Neutral</span> rating</div>
+      <!-- Sidebar Footer Status -->
+      <div class="sidebar-footer">
+        <div class="engine-status-pill" title="Deterministic Rule-Based NLP Active">
+          <div class="status-indicator-dot"></div>
+          <span>Rule Engine Active</span>
         </div>
       </div>
+    </aside>
 
-      <!-- Charts Row: Donut + Line Trend -->
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <!-- Sentiment Distribution Donut -->
-        <div class="bg-[var(--card)] border border-[var(--border)] rounded-2xl p-4 shadow-xs">
-          <div class="flex items-center justify-between mb-2">
-            <span class="text-xs font-bold uppercase tracking-wider text-[var(--muted-foreground)]">Sentiment Distribution</span>
-            <span class="text-[10px] text-[var(--muted-foreground)]">Donut Chart</span>
+    <!-- Main Application Viewport -->
+    <div class="app-main">
+
+      <!-- Top Navigation Bar -->
+      <header class="top-navbar">
+        <div class="topbar-left">
+          <button id="mobileMenuBtn" class="mobile-menu-btn" aria-label="Open Navigation">
+            ☰
+          </button>
+          <div class="breadcrumb-trail">
+            <span class="breadcrumb-root">SentimentAI</span>
+            <span class="breadcrumb-separator">/</span>
+            <span id="breadcrumbCurrent" class="breadcrumb-current">Overview</span>
           </div>
-          <div id="donutChartContainer" class="min-h-[180px] flex items-center justify-center"></div>
         </div>
 
-        <!-- Score Trend Line Chart -->
-        <div class="bg-[var(--card)] border border-[var(--border)] rounded-2xl p-4 shadow-xs">
-          <div class="flex items-center justify-between mb-2">
-            <span class="text-xs font-bold uppercase tracking-wider text-[var(--muted-foreground)]">Sentiment Trajectory</span>
-            <span class="text-[10px] text-[var(--muted-foreground)]">Zero Baseline Trend</span>
+        <div class="topbar-right">
+          <!-- Global Search for Reviews -->
+          <div class="topbar-search-box">
+            <span class="search-icon-inside">🔍</span>
+            <input
+              type="text"
+              id="globalSearchInput"
+              class="topbar-search-input"
+              placeholder="Search reviews..."
+              aria-label="Search review history"
+            />
+            <span class="search-kbd-hint">/</span>
           </div>
-          <div id="trendChartContainer" class="min-h-[180px] flex items-center justify-center"></div>
+
+          <!-- Theme Switcher -->
+          <button id="themeToggleBtn" class="btn-icon" aria-label="Toggle light or dark theme">
+            <span id="themeIcon">🌙</span>
+            <span id="themeLabel" class="hidden sm:inline">Theme</span>
+          </button>
+
+          <!-- Clear Session Action -->
+          <button id="topbarClearSessionBtn" class="btn-icon" title="Clear current session data">
+            <span>🗑️</span>
+            <span class="hidden sm:inline">Clear Session</span>
+          </button>
         </div>
-      </div>
-    </div>
+      </header>
 
-    <!-- ====================================================================
-         VIEW 2: SENTIMENT ANALYZER WORKSPACE
-         ==================================================================== -->
-    <div id="view-analyzer" class="view-panel hidden space-y-4">
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <!-- Input Card -->
-        <div class="bg-[var(--card)] border border-[var(--border)] rounded-2xl p-4 shadow-xs space-y-3">
-          <div class="flex items-center justify-between">
-            <span class="text-xs font-bold uppercase tracking-wider text-[var(--muted-foreground)]">Customer Review Input</span>
-            <span class="text-[11px] text-[var(--muted-foreground)]">Press <kbd class="px-1.5 py-0.5 bg-[var(--background)] border border-[var(--border)] rounded text-[10px]">Ctrl+Enter</kbd></span>
-          </div>
+      <!-- Main Scrollable Content Area -->
+      <main class="page-container">
 
-          <!-- Error Alert -->
-          <div id="inputErrorAlert" class="hidden p-2.5 bg-red-500/10 border border-red-500/20 text-red-500 text-xs rounded-xl">
-            Please enter some text to analyze.
-          </div>
-
-          <textarea
-            id="reviewTextarea"
-            rows="4"
-            class="w-full bg-[var(--background)] text-[var(--foreground)] border border-[var(--border)] focus:border-blue-500 rounded-xl p-3 text-sm resize-none outline-none transition"
-            placeholder="Enter customer feedback or dining review to analyze..."
-          ></textarea>
-
-          <div class="flex justify-between text-xs text-[var(--muted-foreground)]">
-            <span id="charCountLabel">0 characters</span>
-            <span id="wordCountLabel">0 words</span>
-          </div>
-
-          <div class="flex items-center gap-2">
-            <button id="analyzeSubmitBtn" class="flex-1 bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded-xl text-xs transition shadow-xs flex items-center justify-center gap-1.5 cursor-pointer">
-              <span>⚡ Analyze Sentiment</span>
-            </button>
-            <button id="clearInputBtn" class="bg-[var(--background)] hover:bg-[var(--border)] text-[var(--foreground)] border border-[var(--border)] text-xs font-medium py-2 px-3 rounded-xl transition cursor-pointer">
-              Clear
+        <!-- ==================================================================
+             VIEW 1: OVERVIEW DASHBOARD
+             ================================================================== -->
+        <section id="view-overview" class="view-section active">
+          <div class="view-header">
+            <div>
+              <h2 class="view-header-title">Executive Overview</h2>
+              <p class="view-header-desc">Real-time performance metrics and sentiment distribution summary.</p>
+            </div>
+            <button class="btn-primary" data-action="goto-analyzer">
+              <span>⚡ Analyze Feedback</span>
             </button>
           </div>
 
-          <!-- Sample Reviews -->
-          <div class="pt-2 border-t border-dashed border-[var(--border)] space-y-1.5">
-            <span class="text-[10px] font-bold uppercase tracking-wider text-[var(--muted-foreground)] block">Sample Customer Reviews:</span>
-            <div class="space-y-1 text-xs">
-              <button class="sample-btn w-full text-left p-2 rounded-lg bg-[var(--background)] hover:border-blue-500 hover:text-blue-500 text-[var(--muted-foreground)] border border-[var(--border)] transition truncate cursor-pointer" data-text="The food was delicious and delivery was quick.">
-                “The food was delicious and delivery was quick.”
-              </button>
-              <button class="sample-btn w-full text-left p-2 rounded-lg bg-[var(--background)] hover:border-blue-500 hover:text-blue-500 text-[var(--muted-foreground)] border border-[var(--border)] transition truncate cursor-pointer" data-text="The order arrived late and the food was cold.">
-                “The order arrived late and the food was cold.”
-              </button>
-              <button class="sample-btn w-full text-left p-2 rounded-lg bg-[var(--background)] hover:border-blue-500 hover:text-blue-500 text-[var(--muted-foreground)] border border-[var(--border)] transition truncate cursor-pointer" data-text="The service was okay.">
-                “The service was okay.”
-              </button>
-              <button class="sample-btn w-full text-left p-2 rounded-lg bg-[var(--background)] hover:border-blue-500 hover:text-blue-500 text-[var(--muted-foreground)] border border-[var(--border)] transition truncate cursor-pointer" data-text="The food was excellent, but delivery was terrible.">
-                “The food was excellent, but delivery was terrible.”
-              </button>
-              <button class="sample-btn w-full text-left p-2 rounded-lg bg-[var(--background)] hover:border-blue-500 hover:text-blue-500 text-[var(--muted-foreground)] border border-[var(--border)] transition truncate cursor-pointer" data-text="I am not happy with the experience.">
-                “I am not happy with the experience.”
-              </button>
+          <!-- 4 KPI Cards -->
+          <div class="kpi-grid">
+            <div class="kpi-card">
+              <div class="kpi-top">
+                <span class="kpi-title">Total Analyses</span>
+                <div class="kpi-icon-wrap" style="background: var(--brand-subtle); color: var(--brand-primary);">
+                  📑
+                </div>
+              </div>
+              <div id="kpiTotalAnalyses" class="kpi-val">0</div>
+              <div class="kpi-desc">
+                <span id="kpiTotalBadge" class="kpi-badge" style="background: var(--bg-surface-subtle); color: var(--text-muted);">
+                  Session active
+                </span>
+                <span>reviews analyzed</span>
+              </div>
+            </div>
+
+            <div class="kpi-card">
+              <div class="kpi-top">
+                <span class="kpi-title">Positive Feedback</span>
+                <div class="kpi-icon-wrap" style="background: var(--sent-pos-bg); color: var(--sent-pos);">
+                  👍
+                </div>
+              </div>
+              <div id="kpiPosCount" class="kpi-val">0</div>
+              <div class="kpi-desc">
+                <span id="kpiPosPercent" class="kpi-badge" style="background: var(--sent-pos-bg); color: var(--sent-pos-text);">
+                  0%
+                </span>
+                <span>of total responses</span>
+              </div>
+            </div>
+
+            <div class="kpi-card">
+              <div class="kpi-top">
+                <span class="kpi-title">Negative Feedback</span>
+                <div class="kpi-icon-wrap" style="background: var(--sent-neg-bg); color: var(--sent-neg);">
+                  👎
+                </div>
+              </div>
+              <div id="kpiNegCount" class="kpi-val">0</div>
+              <div class="kpi-desc">
+                <span id="kpiNegPercent" class="kpi-badge" style="background: var(--sent-neg-bg); color: var(--sent-neg-text);">
+                  0%
+                </span>
+                <span>attention required</span>
+              </div>
+            </div>
+
+            <div class="kpi-card">
+              <div class="kpi-top">
+                <span class="kpi-title">Avg Sentiment Score</span>
+                <div class="kpi-icon-wrap" style="background: var(--bg-surface-subtle); color: var(--text-secondary);">
+                  ⚖️
+                </div>
+              </div>
+              <div id="kpiAvgScore" class="kpi-val">0.0</div>
+              <div class="kpi-desc">
+                <span id="kpiScoreBadge" class="kpi-badge" style="background: var(--bg-surface-subtle); color: var(--text-secondary);">
+                  Neutral
+                </span>
+                <span>weighted rating</span>
+              </div>
             </div>
           </div>
-        </div>
 
-        <!-- Result Card -->
-        <div class="bg-[var(--card)] border border-[var(--border)] rounded-2xl p-4 shadow-xs space-y-3">
-          <div class="flex items-center justify-between border-b border-[var(--border)] pb-2.5">
-            <span id="resultSentimentPill" class="text-xs font-bold px-3 py-1 rounded-full bg-emerald-500/10 text-emerald-500 border border-emerald-500/20">
-              Positive
-            </span>
-            <span id="resultEmotionPill" class="text-xs font-medium px-2.5 py-1 rounded-full bg-[var(--background)] border border-[var(--border)]">
-              😊 Happiness
-            </span>
-          </div>
-
-          <!-- Result Metrics -->
-          <div class="grid grid-cols-3 gap-2 text-center text-xs">
-            <div class="bg-[var(--background)] border border-[var(--border)] rounded-xl p-2.5">
-              <span class="text-[10px] uppercase font-bold text-[var(--muted-foreground)] block">Score</span>
-              <span id="resultScorePill" class="text-lg font-bold font-mono text-emerald-500 block mt-0.5">+2</span>
-            </div>
-            <div class="bg-[var(--background)] border border-[var(--border)] rounded-xl p-2.5">
-              <span class="text-[10px] uppercase font-bold text-[var(--muted-foreground)] block">Rule Conf.</span>
-              <span id="resultConfidencePill" class="text-lg font-bold font-mono text-[var(--foreground)] block mt-0.5">85%</span>
-            </div>
-            <div class="bg-[var(--background)] border border-[var(--border)] rounded-xl p-2.5">
-              <span class="text-[10px] uppercase font-bold text-[var(--muted-foreground)] block">Words</span>
-              <span id="resultWordsPill" class="text-lg font-bold font-mono text-[var(--foreground)] block mt-0.5">8</span>
-            </div>
-          </div>
-
-          <!-- Matched Keywords -->
-          <div>
-            <span class="text-[10px] font-bold uppercase tracking-wider text-[var(--muted-foreground)] block mb-1">Matched Keywords &amp; Weights:</span>
-            <div id="resultKeywordsContainer" class="flex flex-wrap gap-1.5">
-              <span class="text-xs text-[var(--muted-foreground)] italic">None</span>
-            </div>
-          </div>
-
-          <!-- Explanation -->
-          <div>
-            <span class="text-[10px] font-bold uppercase tracking-wider text-[var(--muted-foreground)] block mb-1">Rule-Based Reasoning:</span>
-            <p id="resultExplanationText" class="text-xs p-2.5 bg-[var(--background)] border border-[var(--border)] rounded-xl text-[var(--foreground)] leading-relaxed">
-              Keywords matched positive range.
+          <!-- Empty State Callout -->
+          <div id="overviewEmptyState" class="card text-center py-12 mb-6" style="display: none;">
+            <div class="text-4xl mb-3">💬</div>
+            <h3 class="text-base font-bold text-primary mb-1">No feedback analyzed yet</h3>
+            <p class="text-xs text-muted max-w-md mx-auto mb-4">
+              Enter customer reviews or test with sample restaurant feedback to see live KPIs, distribution donut charts, and score trends.
             </p>
+            <button class="btn-primary" data-action="goto-analyzer">
+              Start Analyzing Feedback
+            </button>
           </div>
-        </div>
-      </div>
-    </div>
 
-    <!-- ====================================================================
-         VIEW 3: SEARCHABLE & FILTERABLE HISTORY TABLE
-         ==================================================================== -->
-    <div id="view-history" class="view-panel hidden space-y-4">
-      <div class="bg-[var(--card)] border border-[var(--border)] rounded-2xl p-4 shadow-xs space-y-3">
-        <div class="flex flex-wrap items-center justify-between gap-2">
-          <input
-            type="text"
-            id="historySearchInput"
-            class="bg-[var(--background)] border border-[var(--border)] text-xs rounded-xl px-3 py-1.5 text-[var(--foreground)] w-48 outline-none"
-            placeholder="Search reviews..."
-          />
-          <div class="flex items-center gap-2">
-            <select id="historyFilterSelect" class="bg-[var(--background)] border border-[var(--border)] text-xs rounded-xl px-2.5 py-1.5 text-[var(--foreground)] outline-none">
-              <option value="ALL">All Sentiments</option>
-              <option value="Positive">Positive</option>
-              <option value="Very Positive">Very Positive</option>
-              <option value="Neutral">Neutral</option>
-              <option value="Negative">Negative</option>
-              <option value="Very Negative">Very Negative</option>
-              <option value="Mixed">Mixed</option>
-            </select>
-          </div>
-        </div>
-
-        <div class="overflow-x-auto border border-[var(--border)] rounded-xl">
-          <table class="w-full text-left text-xs border-collapse">
-            <thead class="bg-[var(--background)] text-[var(--muted-foreground)] uppercase text-[10px] border-b border-[var(--border)]">
-              <tr>
-                <th class="p-3">Review</th>
-                <th class="p-3">Sentiment</th>
-                <th class="p-3">Score</th>
-                <th class="p-3">Emotion</th>
-                <th class="p-3">Time</th>
-              </tr>
-            </thead>
-            <tbody id="historyTableRows" class="divide-y divide-[var(--border)]">
-              <tr>
-                <td colspan="5" class="p-6 text-center text-[var(--muted-foreground)]">No review history recorded yet.</td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-      </div>
-    </div>
-
-    <!-- ====================================================================
-         VIEW 4: CUSTOMER FEEDBACK INSIGHTS (ZOMATO ASPECT CATEGORIZATION)
-         ==================================================================== -->
-    <div id="view-insights" class="view-panel hidden space-y-4">
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <!-- Top Keywords -->
-        <div class="bg-[var(--card)] border border-[var(--border)] rounded-2xl p-4 shadow-xs space-y-3">
-          <span class="text-xs font-bold uppercase tracking-wider text-[var(--muted-foreground)] block">Keyword Triggers</span>
-          <div class="grid grid-cols-2 gap-3 text-xs">
-            <div>
-              <span class="text-[10px] font-bold text-emerald-500 uppercase block mb-1">Top Positive Words</span>
-              <div id="topPosWordsList" class="space-y-1 font-mono text-[var(--foreground)]">
-                <span class="text-muted italic text-[11px]">None yet</span>
+          <!-- Quick Overview Charts Grid -->
+          <div id="overviewChartsGrid" class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));">
+            <!-- Donut Chart Card -->
+            <div class="card">
+              <div class="card-header-flex">
+                <h3 class="card-title-sm">
+                  <span>🍩</span>
+                  <span>Sentiment Distribution</span>
+                </h3>
+                <span class="text-xs text-muted">Polarity breakdown</span>
               </div>
+              <div id="overviewDonutContainer"></div>
             </div>
-            <div>
-              <span class="text-[10px] font-bold text-rose-500 uppercase block mb-1">Top Negative Words</span>
-              <div id="topNegWordsList" class="space-y-1 font-mono text-[var(--foreground)]">
-                <span class="text-muted italic text-[11px]">None yet</span>
+
+            <!-- Trend Line Chart Card -->
+            <div class="card">
+              <div class="card-header-flex">
+                <h3 class="card-title-sm">
+                  <span>📈</span>
+                  <span>Sentiment Score Trend</span>
+                </h3>
+                <span class="text-xs text-muted">Trajectory over time</span>
               </div>
+              <div id="overviewTrendContainer"></div>
             </div>
           </div>
-        </div>
 
-        <!-- Emotion Bar Chart -->
-        <div class="bg-[var(--card)] border border-[var(--border)] rounded-2xl p-4 shadow-xs space-y-3">
-          <span class="text-xs font-bold uppercase tracking-wider text-[var(--muted-foreground)] block">Emotion Frequency</span>
-          <div id="emotionBarChartContainer"></div>
-        </div>
-      </div>
+          <!-- Recent Analyses Quick Table -->
+          <div class="card">
+            <div class="card-header-flex">
+              <h3 class="card-title-sm">
+                <span>🕒</span>
+                <span>Recent Analyses</span>
+              </h3>
+              <a href="#history" class="text-xs font-semibold text-brand hover:underline" data-action="goto-history">
+                View All in History →
+              </a>
+            </div>
+            <div class="table-responsive">
+              <table class="saas-table">
+                <thead>
+                  <tr>
+                    <th>Review Text</th>
+                    <th>Sentiment</th>
+                    <th>Score</th>
+                    <th>Emotion</th>
+                    <th>Time</th>
+                  </tr>
+                </thead>
+                <tbody id="overviewRecentTableBody">
+                  <tr>
+                    <td colspan="5" class="table-empty-state">No analyses yet in this session.</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </section>
 
-      <!-- Zomato Aspect Categorization -->
-      <div class="bg-[var(--card)] border border-[var(--border)] rounded-2xl p-4 shadow-xs space-y-3">
-        <div class="flex items-center justify-between">
-          <span class="text-xs font-bold uppercase tracking-wider text-[var(--muted-foreground)]">Zomato Aspect Extraction</span>
-          <span class="text-[10px] bg-blue-500/10 text-blue-500 px-2 py-0.5 rounded-full border border-blue-500/20">Rule-Based Taxonomy</span>
-        </div>
-        <div class="grid grid-cols-2 md:grid-cols-4 gap-2.5" id="aspectsCardsGrid"></div>
-      </div>
+        <!-- ==================================================================
+             VIEW 2: SENTIMENT ANALYSIS WORKSPACE
+             ================================================================== -->
+        <section id="view-analyzer" class="view-section">
+          <div class="view-header">
+            <div>
+              <h2 class="view-header-title">Sentiment Analysis Workspace</h2>
+              <p class="view-header-desc">Inspect customer feedback using predefined rules, weights, and negation scope tracking.</p>
+            </div>
+          </div>
+
+          <div class="workspace-grid">
+            <!-- Input Area -->
+            <div class="card workspace-input-card">
+              <div class="card-header-flex">
+                <h3 class="card-title-sm">
+                  <span>✏️</span>
+                  <span>Input Text</span>
+                </h3>
+                <span class="text-xs text-muted">Press <kbd class="px-1.5 py-0.5 bg-surface-subtle border border-border rounded text-[10px]">Ctrl+Enter</kbd></span>
+              </div>
+
+              <!-- Input Error Alert -->
+              <div id="workspaceErrorAlert" class="hidden items-center gap-2 p-3 bg-red-500/10 border border-red-500/30 text-red-500 text-xs rounded-xl" role="alert">
+                <span>⚠️</span>
+                <span id="workspaceErrorText">Please enter some text to analyze.</span>
+              </div>
+
+              <textarea
+                id="analyzerInput"
+                class="workspace-textarea"
+                placeholder="Enter customer review or sentence to analyze (e.g. food delivery, product rating)..."
+                rows="5"
+                aria-label="Input sentence to analyze"
+              ></textarea>
+
+              <div class="workspace-meta">
+                <span id="workspaceCharCount">0 characters</span>
+                <span id="workspaceWordCount">0 words</span>
+              </div>
+
+              <div class="workspace-actions">
+                <button id="runAnalyzeBtn" class="btn-primary flex-1">
+                  <span id="analyzeBtnIcon">⚡</span>
+                  <span id="analyzeBtnText">Analyze Sentiment</span>
+                </button>
+                <button id="clearWorkspaceBtn" class="btn-secondary">
+                  Clear Input
+                </button>
+              </div>
+
+              <!-- 5 Clickable Sample Reviews (Food / Zomato / Delivery Domain) -->
+              <div class="sample-reviews-section">
+                <span class="sample-reviews-label">Try Sample Customer Reviews:</span>
+                <div class="sample-pills-list">
+                  <button class="sample-pill-btn" data-text="The food was delicious and delivery was quick.">
+                    <span>“The food was delicious and delivery was quick.”</span>
+                    <span class="sample-pill-arrow">↗</span>
+                  </button>
+                  <button class="sample-pill-btn" data-text="The order arrived late and the food was cold.">
+                    <span>“The order arrived late and the food was cold.”</span>
+                    <span class="sample-pill-arrow">↗</span>
+                  </button>
+                  <button class="sample-pill-btn" data-text="The service was okay.">
+                    <span>“The service was okay.”</span>
+                    <span class="sample-pill-arrow">↗</span>
+                  </button>
+                  <button class="sample-pill-btn" data-text="The food was excellent, but delivery was terrible.">
+                    <span>“The food was excellent, but delivery was terrible.”</span>
+                    <span class="sample-pill-arrow">↗</span>
+                  </button>
+                  <button class="sample-pill-btn" data-text="I am not happy with the experience.">
+                    <span>“I am not happy with the experience.”</span>
+                    <span class="sample-pill-arrow">↗</span>
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <!-- Result Panel -->
+            <div class="card">
+              <div class="card-header-flex">
+                <h3 class="card-title-sm">
+                  <span>🎯</span>
+                  <span>Analysis Result</span>
+                </h3>
+                <span id="ruleConfidenceBadge" class="text-xs font-semibold text-muted font-mono">
+                  Rule Confidence: 0%
+                </span>
+              </div>
+
+              <!-- Empty State before analysis -->
+              <div id="analyzerResultEmpty" class="text-center py-16 text-muted">
+                <div class="text-4xl mb-2">🔍</div>
+                <p class="text-xs font-semibold text-secondary">Awaiting feedback input</p>
+                <span class="text-[11px] text-muted">Type text on the left or select a sample review</span>
+              </div>
+
+              <!-- Populated Result Content -->
+              <div id="analyzerResultContent" class="result-panel" style="display: none;">
+                <!-- Result Badges Header -->
+                <div class="result-header-row">
+                  <span id="resSentimentBadge" class="sentiment-badge-lg">
+                    Neutral
+                  </span>
+                  <span id="resEmotionBadge" class="emotion-badge-lg">
+                    <span>😐</span>
+                    <span>Neutral</span>
+                  </span>
+                </div>
+
+                <!-- 3 Result Metric Boxes -->
+                <div class="result-metrics-grid">
+                  <div class="res-metric-box">
+                    <div class="res-metric-label">Weighted Score</div>
+                    <div id="resScoreVal" class="res-metric-value">0</div>
+                  </div>
+                  <div class="res-metric-box">
+                    <div class="res-metric-label">Rule Confidence</div>
+                    <div id="resConfidenceVal" class="res-metric-value">0%</div>
+                  </div>
+                  <div class="res-metric-box">
+                    <div class="res-metric-label">Words Analyzed</div>
+                    <div id="resWordCountVal" class="res-metric-value">0</div>
+                  </div>
+                </div>
+
+                <!-- Matched Keywords Chips -->
+                <div>
+                  <span class="text-[11px] font-bold uppercase tracking-wider text-muted">Matched Keywords &amp; Weights</span>
+                  <div id="resKeywordsWrap" class="matched-keywords-wrap">
+                    <span class="text-xs text-muted italic">None detected</span>
+                  </div>
+                </div>
+
+                <!-- Keyword Balance Summary -->
+                <div class="p-3 bg-surface-subtle border border-border rounded-xl text-xs space-y-1">
+                  <div class="flex justify-between">
+                    <span class="text-secondary font-medium">Positive Contribution:</span>
+                    <span id="resPosContribution" class="font-mono font-semibold text-emerald-500">+0.0</span>
+                  </div>
+                  <div class="flex justify-between">
+                    <span class="text-secondary font-medium">Negative Contribution:</span>
+                    <span id="resNegContribution" class="font-mono font-semibold text-rose-500">-0.0</span>
+                  </div>
+                </div>
+
+                <!-- Short Rule Explanation -->
+                <div>
+                  <span class="text-[11px] font-bold uppercase tracking-wider text-muted">Rule-Based Reasoning</span>
+                  <p id="resShortExplanation" class="text-xs text-secondary mt-1 bg-surface-subtle border border-border p-2.5 rounded-lg leading-relaxed">
+                    Awaiting calculation.
+                  </p>
+                </div>
+
+                <!-- Collapsible Step-by-Step Rule Execution Trace -->
+                <div class="explanation-details-box">
+                  <button id="toggleTraceBtn" class="explanation-toggle-btn">
+                    <span>🔍 Full Step-by-Step Rule Trace</span>
+                    <span id="traceToggleIcon">▼</span>
+                  </button>
+                  <div id="traceInnerContent" class="explanation-inner hidden">
+                    <ul id="traceStepsList" class="space-y-1.5 text-[11px] text-muted"></ul>
+                  </div>
+                </div>
+
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- ==================================================================
+             VIEW 3: ANALYSIS HISTORY TABLE
+             ================================================================== -->
+        <section id="view-history" class="view-section">
+          <div class="view-header">
+            <div>
+              <h2 class="view-header-title">Analysis History</h2>
+              <p class="view-header-desc">Search, filter, and inspect past customer review classifications.</p>
+            </div>
+            <div class="flex items-center gap-2">
+              <button id="historyClearBtn" class="btn-secondary text-xs">
+                Clear All History
+              </button>
+            </div>
+          </div>
+
+          <div class="card">
+            <!-- Controls Bar: Search, Filters, Sort -->
+            <div class="history-controls-bar">
+              <div class="history-filter-group">
+                <input
+                  type="text"
+                  id="historyTableSearch"
+                  class="topbar-search-input"
+                  style="width: 220px;"
+                  placeholder="Filter by review text..."
+                />
+                <select id="filterSentimentSelect" class="filter-select">
+                  <option value="ALL">All Sentiments</option>
+                  <option value="Very Positive">Very Positive</option>
+                  <option value="Positive">Positive</option>
+                  <option value="Neutral">Neutral</option>
+                  <option value="Negative">Negative</option>
+                  <option value="Very Negative">Very Negative</option>
+                  <option value="Mixed">Mixed</option>
+                </select>
+                <select id="sortHistorySelect" class="filter-select">
+                  <option value="NEWEST">Newest First</option>
+                  <option value="OLDEST">Oldest First</option>
+                  <option value="SCORE_HIGH">Score (High to Low)</option>
+                  <option value="SCORE_LOW">Score (Low to High)</option>
+                </select>
+              </div>
+
+              <div id="historyCountBadge" class="text-xs text-muted font-medium">
+                Showing 0 entries
+              </div>
+            </div>
+
+            <!-- History Table -->
+            <div class="table-responsive">
+              <table class="saas-table">
+                <thead>
+                  <tr>
+                    <th style="min-width: 260px;">Review Text</th>
+                    <th>Sentiment</th>
+                    <th>Score</th>
+                    <th>Detected Emotion</th>
+                    <th>Analysis Time</th>
+                    <th style="text-align: right;">Action</th>
+                  </tr>
+                </thead>
+                <tbody id="historyTableBody">
+                  <tr>
+                    <td colspan="6" class="table-empty-state">No analyses found matching criteria.</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+
+            <!-- Pagination Footer -->
+            <div class="pagination-footer">
+              <span id="paginationInfo">Page 1 of 1</span>
+              <div class="flex items-center gap-1.5">
+                <button id="prevPageBtn" class="btn-icon" style="padding: 4px 10px;" disabled>
+                  Previous
+                </button>
+                <button id="nextPageBtn" class="btn-icon" style="padding: 4px 10px;" disabled>
+                  Next
+                </button>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- ==================================================================
+             VIEW 4: EMOTION INSIGHTS
+             ================================================================== -->
+        <section id="view-emotions" class="view-section">
+          <div class="view-header">
+            <div>
+              <h2 class="view-header-title">Emotion Insights</h2>
+              <p class="view-header-desc">Lexical mapping of emotional states (Happiness, Sadness, Anger, Fear, Love, Excitement).</p>
+            </div>
+          </div>
+
+          <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));">
+            <!-- Emotion Bar Chart -->
+            <div class="card">
+              <div class="card-header-flex">
+                <h3 class="card-title-sm">
+                  <span>📊</span>
+                  <span>Emotion Frequency Breakdown</span>
+                </h3>
+                <span class="text-xs text-muted">Detected triggers</span>
+              </div>
+              <div id="emotionsBarContainer"></div>
+            </div>
+
+            <!-- Emotion Taxonomy Reference -->
+            <div class="card">
+              <div class="card-header-flex">
+                <h3 class="card-title-sm">
+                  <span>📖</span>
+                  <span>Predefined Emotion Rules</span>
+                </h3>
+                <span class="text-xs text-muted">Deterministic Lexicons</span>
+              </div>
+              <div class="space-y-2 text-xs">
+                <div class="p-2.5 bg-surface-subtle border border-border rounded-lg flex items-center justify-between">
+                  <span class="font-medium text-primary">Happiness 😊</span>
+                  <span class="text-muted">happy, joy, delicious, delighted, satisfied</span>
+                </div>
+                <div class="p-2.5 bg-surface-subtle border border-border rounded-lg flex items-center justify-between">
+                  <span class="font-medium text-primary">Sadness 😢</span>
+                  <span class="text-muted">sad, unhappy, cold, sorrow, disappointed</span>
+                </div>
+                <div class="p-2.5 bg-surface-subtle border border-border rounded-lg flex items-center justify-between">
+                  <span class="font-medium text-primary">Anger 😡</span>
+                  <span class="text-muted">angry, mad, furious, late, terrible, awful, hate</span>
+                </div>
+                <div class="p-2.5 bg-surface-subtle border border-border rounded-lg flex items-center justify-between">
+                  <span class="font-medium text-primary">Fear 😨</span>
+                  <span class="text-muted">afraid, scared, fearful, worried, panic</span>
+                </div>
+                <div class="p-2.5 bg-surface-subtle border border-border rounded-lg flex items-center justify-between">
+                  <span class="font-medium text-primary">Love ❤️</span>
+                  <span class="text-muted">love, loved, adore, cherish, fond</span>
+                </div>
+                <div class="p-2.5 bg-surface-subtle border border-border rounded-lg flex items-center justify-between">
+                  <span class="font-medium text-primary">Excitement 🤩</span>
+                  <span class="text-muted">excited, thrilling, amazing, awesome, quick</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- ==================================================================
+             VIEW 5: ANALYTICS & REPORTS (Includes Customer Feedback Insights)
+             ================================================================== -->
+        <section id="view-analytics" class="view-section">
+          <div class="view-header">
+            <div>
+              <h2 class="view-header-title">Analytics &amp; Customer Feedback Insights</h2>
+              <p class="view-header-desc">Deep patterns across analyzed reviews and restaurant aspect breakdown.</p>
+            </div>
+          </div>
+
+          <!-- Customer Feedback Insights Grid -->
+          <div class="insights-grid">
+            <!-- Top Keywords Card -->
+            <div class="card space-y-3">
+              <h3 class="card-title-sm">
+                <span>🔑</span>
+                <span>Top Detected Sentiment Triggers</span>
+              </h3>
+              <div class="grid grid-cols-2 gap-3 text-xs">
+                <div>
+                  <span class="text-[10px] uppercase font-bold text-emerald-500 block mb-1">Top Positive Keywords</span>
+                  <div id="insightsTopPosList" class="space-y-1">
+                    <span class="text-muted italic">None yet</span>
+                  </div>
+                </div>
+                <div>
+                  <span class="text-[10px] uppercase font-bold text-rose-500 block mb-1">Top Negative Keywords</span>
+                  <div id="insightsTopNegList" class="space-y-1">
+                    <span class="text-muted italic">None yet</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Complaint-Related Keywords Card -->
+            <div class="card space-y-3">
+              <h3 class="card-title-sm">
+                <span>⚠️</span>
+                <span>Common Complaint Triggers</span>
+              </h3>
+              <p class="text-xs text-muted">
+                Frequently flagged negative words associated with friction in service, delivery, or food quality.
+              </p>
+              <div id="insightsComplaintsList" class="flex flex-wrap gap-1.5">
+                <span class="text-xs text-muted italic">No complaints detected</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Zomato / Restaurant Aspect Breakdown -->
+          <div class="card mb-6">
+            <div class="card-header-flex">
+              <div>
+                <h3 class="card-title-sm">
+                  <span>🍽️</span>
+                  <span>Restaurant &amp; Delivery Aspect Categorization</span>
+                </h3>
+                <span class="text-xs text-muted">Rule-based aspect extraction across key dining touchpoints</span>
+              </div>
+              <span class="text-[11px] bg-surface-subtle border border-border px-2 py-0.5 rounded text-muted">
+                Zomato Use Case
+              </span>
+            </div>
+
+            <div class="aspect-cards-grid" id="aspectsContainer">
+              <!-- Dynamically populated aspect cards -->
+            </div>
+          </div>
+
+          <!-- Session Summary Card -->
+          <div class="card">
+            <div class="card-header-flex">
+              <h3 class="card-title-sm">
+                <span>📋</span>
+                <span>Standardized Session Summary</span>
+              </h3>
+              <span class="text-xs text-muted">Formatted text report</span>
+            </div>
+            <pre id="analyticsSummaryPre" class="text-xs leading-relaxed bg-surface-subtle border border-border p-3.5 rounded-xl whitespace-pre-wrap font-mono text-primary">No messages analyzed in this session yet.</pre>
+          </div>
+        </section>
+
+        <!-- ==================================================================
+             VIEW 6: SETTINGS & SPECIFICATION
+             ================================================================== -->
+        <section id="view-settings" class="view-section">
+          <div class="view-header">
+            <div>
+              <h2 class="view-header-title">Settings &amp; Engine Configuration</h2>
+              <p class="view-header-desc">Inspect rule-based heuristics and manage local session storage.</p>
+            </div>
+          </div>
+
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-6" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));">
+            <!-- Platform Rules Card -->
+            <div class="card space-y-3">
+              <h3 class="card-title-sm">
+                <span>🛡️</span>
+                <span>Engine Specification</span>
+              </h3>
+              <div class="space-y-2 text-xs text-secondary">
+                <p><strong>Architecture:</strong> Pure Deterministic Rule-Based Natural Language Processing.</p>
+                <p><strong>Zero External AI:</strong> No OpenAI, Machine Learning models, or cloud NLP APIs are employed.</p>
+                <p><strong>Negation Window:</strong> Active up to 3 tokens ahead, resets upon clause punctuation.</p>
+                <p><strong>Confidence:</strong> Labeled as <em>Rule Confidence</em>, calculated mathematically from keyword coverage and intensity.</p>
+              </div>
+            </div>
+
+            <!-- Session Data Management Card -->
+            <div class="card space-y-4">
+              <h3 class="card-title-sm">
+                <span>💾</span>
+                <span>Data Management</span>
+              </h3>
+              <p class="text-xs text-muted">
+                All analysis history is stored strictly in your browser's LocalStorage. No data is sent to external servers.
+              </p>
+              <div class="flex flex-wrap gap-2">
+                <button id="exportJsonBtn" class="btn-secondary text-xs">
+                  📥 Export History (JSON)
+                </button>
+                <button id="exportCsvBtn" class="btn-secondary text-xs">
+                  📊 Export History (CSV)
+                </button>
+                <button id="settingsClearBtn" class="btn-secondary text-xs text-rose-500 border-rose-500/30 hover:bg-rose-500/10">
+                  🗑️ Reset Session Data
+                </button>
+              </div>
+            </div>
+          </div>
+        </section>
+
+      </main>
     </div>
-
   </div>
 
-  <!-- Inline Script: Engine, Visualization & UI Logic -->
+  <!-- Review Detail Modal Dialog -->
+  <div id="detailsModal" class="modal-backdrop" aria-hidden="true">
+    <div class="modal-dialog" role="dialog" aria-modal="true" aria-labelledby="modalDetailTitle">
+      <div class="modal-header">
+        <h3 id="modalDetailTitle" class="modal-title">Review Analysis Details</h3>
+        <button id="closeDetailsModalBtn" class="modal-close-btn" aria-label="Close modal">✕</button>
+      </div>
+      <div class="modal-body space-y-4 text-xs" id="modalDetailBody">
+        <!-- Injected via JavaScript -->
+      </div>
+      <div class="modal-footer">
+        <button id="closeDetailsModalFooterBtn" class="btn-secondary text-xs">Close</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Clear Confirmation Modal -->
+  <div id="confirmModal" class="modal-backdrop" aria-hidden="true">
+    <div class="modal-dialog" style="max-width: 420px;" role="dialog" aria-modal="true">
+      <div class="modal-header">
+        <h3 class="modal-title">Clear Session Data?</h3>
+        <button id="cancelConfirmModalBtn" class="modal-close-btn">✕</button>
+      </div>
+      <div class="modal-body text-xs text-secondary leading-relaxed">
+        Are you sure you want to delete all analyzed messages and reset your session statistics? This action cannot be undone.
+      </div>
+      <div class="modal-footer">
+        <button id="cancelConfirmBtn" class="btn-secondary text-xs">Cancel</button>
+        <button id="acceptConfirmBtn" class="btn-primary text-xs" style="background-color: var(--sent-neg);">Yes, Clear Session</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast Notification Container -->
+  <div id="toastContainer" class="toast-container" aria-live="polite"></div>
+
+  <!-- ====================================================================
+       SELF-CONTAINED SCRIPT: BUNDLED FOR FLAWLESS OFFLINE & FILE:// EXECUTION
+       ==================================================================== -->
   <script>
     (function () {
       'use strict';
 
-      // 1. Lexicons & Rules
+      // 1. LEXICONS & RULES
       const SENTIMENT_LEXICON = {
-        amazing: 3, excellent: 3, awesome: 3, fantastic: 3, wonderful: 3, brilliant: 3, outstanding: 3, perfect: 3, delicious: 3,
-        great: 2, love: 2, loved: 2, happy: 2, pleased: 2, joy: 2, joyful: 2, excited: 2, exciting: 2, thrilled: 2,
-        quick: 2, fresh: 2, tasty: 2, yummy: 2, helpful: 2, clean: 2, fast: 2, reliable: 2,
-        good: 1, nice: 1, like: 1, liked: 1, fine: 1, decent: 1, pleasant: 1, glad: 1, satisfied: 1, useful: 1, okay: 0.5, ok: 0.5,
-        bad: -1, poor: -1, dislike: -1, annoying: -1, slow: -1, confusing: -1, unhappy: -1, ugly: -1, cold: -1, delay: -1,
-        sad: -2, disappointing: -2, disappointed: -2, frustrated: -2, useless: -2, broken: -2, rude: -2, angry: -2, mad: -2,
-        late: -2, delayed: -2, stale: -2, soggy: -2, burnt: -2,
-        terrible: -3, awful: -3, horrible: -3, worst: -3, hate: -3, hated: -3, dreadful: -3, disastrous: -3, furious: -3
+        amazing: 3, excellent: 3, awesome: 3, fantastic: 3, wonderful: 3, brilliant: 3, superb: 3, outstanding: 3, perfect: 3, exceptional: 3, magnificent: 3, flawless: 3, delightful: 3, delicious: 3,
+        great: 2, love: 2, loved: 2, happy: 2, pleased: 2, joy: 2, joyful: 2, excited: 2, exciting: 2, thrilled: 2, helpful: 2, clean: 2, fast: 2, reliable: 2, impressive: 2, enjoy: 2, enjoyed: 2, enjoyable: 2, valuable: 2, super: 2, terrific: 2, fabulous: 2, adore: 2, quick: 2, fresh: 2, tasty: 2, yummy: 2,
+        good: 1, nice: 1, like: 1, liked: 1, fine: 1, decent: 1, pleasant: 1, fair: 1, glad: 1, neat: 1, satisfied: 1, satisfactory: 1, convenient: 1, useful: 1, okay: 0.5, ok: 0.5,
+        bad: -1, poor: -1, dislike: -1, disliked: -1, annoying: -1, annoyed: -1, slow: -1, confusing: -1, unhappy: -1, ugly: -1, bland: -1, weak: -1, mediocre: -1, boring: -1, flawed: -1, costly: -1, subpar: -1, cold: -1, delay: -1, greasy: -1,
+        sad: -2, disappointing: -2, disappointed: -2, frustrated: -2, frustrating: -2, useless: -2, broken: -2, rude: -2, unpleasant: -2, sorrow: -2, miserable: -2, regret: -2, painful: -2, worthless: -2, inconvenient: -2, angry: -2, mad: -2, scared: -2, afraid: -2, late: -2, delayed: -2, stale: -2, soggy: -2, burnt: -2, spilled: -2,
+        terrible: -3, awful: -3, horrible: -3, worst: -3, hate: -3, hated: -3, dreadful: -3, disastrous: -3, appalling: -3, abysmal: -3, repulsive: -3, disgusting: -3, furious: -3, outraged: -3, unacceptable: -3, atrocious: -3
       };
+
+      const INTENSIFIERS = { very: 1.5, extremely: 2.0, really: 1.5, so: 1.3, absolutely: 1.8, completely: 1.6, totally: 1.6, deeply: 1.5, incredibly: 1.8 };
+      const DIMINISHERS = { slightly: 0.5, somewhat: 0.6, barely: 0.4, scarcely: 0.4, hardly: 0.5 };
+      const CONTRASTIVE_CONJUNCTIONS = ['but', 'however', 'although', 'though', 'yet', 'nevertheless', 'nonetheless', 'except', 'whereas', 'while', 'still', 'despite'];
 
       const NEGATION_WORDS = new Set([
         'not', 'never', 'no', 'none', 'neither', 'nor', 'without',
         "isn't", 'isnt', "wasn't", 'wasnt', "aren't", 'arent', "weren't", 'werent',
         "don't", 'dont', "didn't", 'didnt', "doesn't", 'doesnt',
         'cannot', "can't", 'cant', "couldn't", 'couldnt',
-        "won't", 'wont', "wouldn't", 'wouldnt', "shouldn't", 'shouldnt'
+        "won't", 'wont', "wouldn't", 'wouldnt', "shouldn't", 'shouldnt',
+        "haven't", 'havent', "hasn't", 'hasnt', "hadn't", 'hadnt',
+        'hardly', 'scarcely', 'barely'
       ]);
 
-      const CONTRASTIVE = new Set(['but', 'however', 'although', 'though', 'yet', 'nevertheless', 'while', 'except']);
-
       const EMOTIONS = {
-        happiness: { name: 'Happiness', emoji: '😊', color: '#10b981', keywords: ['happy', 'joy', 'joyful', 'pleased', 'delighted', 'glad', 'cheerful', 'satisfied', 'delicious', 'tasty', 'fresh'] },
-        sadness: { name: 'Sadness', emoji: '😢', color: '#3b82f6', keywords: ['sad', 'unhappy', 'sorrow', 'crying', 'depressed', 'disappointed', 'disappointing', 'cold'] },
-        anger: { name: 'Anger', emoji: '😡', color: '#ef4444', keywords: ['angry', 'mad', 'furious', 'outraged', 'irritated', 'annoyed', 'terrible', 'awful', 'horrible', 'hate', 'worst', 'late', 'delayed'] },
-        fear: { name: 'Fear', emoji: '😨', color: '#8b5cf6', keywords: ['afraid', 'scared', 'fearful', 'terrified', 'anxious', 'worried'] },
-        love: { name: 'Love', emoji: '❤️', color: '#ec4899', keywords: ['love', 'loved', 'loving', 'adore', 'adored', 'cherish'] },
-        excitement: { name: 'Excitement', emoji: '🤩', color: '#f59e0b', keywords: ['excited', 'exciting', 'thrilled', 'amazing', 'awesome', 'fantastic', 'wonderful', 'quick'] }
+        HAPPINESS: { id: 'happiness', name: 'Happiness', emoji: '😊', color: '#10b981' },
+        SADNESS: { id: 'sadness', name: 'Sadness', emoji: '😢', color: '#3b82f6' },
+        ANGER: { id: 'anger', name: 'Anger', emoji: '😡', color: '#ef4444' },
+        FEAR: { id: 'fear', name: 'Fear', emoji: '😨', color: '#8b5cf6' },
+        LOVE: { id: 'love', name: 'Love', emoji: '❤️', color: '#ec4899' },
+        EXCITEMENT: { id: 'excitement', name: 'Excitement', emoji: '🤩', color: '#f59e0b' },
+        NEUTRAL: { id: 'neutral', name: 'Neutral', emoji: '😐', color: '#64748b' }
       };
 
-      const ASPECTS = {
-        food: { name: 'Food Quality', icon: '🍲', terms: ['food', 'meal', 'dish', 'delicious', 'tasty', 'flavor', 'taste', 'cold', 'hot', 'fresh', 'stale', 'soggy', 'burnt'] },
-        delivery: { name: 'Delivery Speed', icon: '🛵', terms: ['delivery', 'courier', 'driver', 'rider', 'quick', 'fast', 'late', 'delay', 'delayed', 'arrive', 'arrived', 'time', 'order'] },
-        packaging: { name: 'Packaging', icon: '📦', terms: ['package', 'packaging', 'packed', 'box', 'container', 'spill', 'spilled', 'leak', 'leaked', 'seal'] },
-        service: { name: 'Service', icon: '🛎️', terms: ['service', 'staff', 'support', 'behavior', 'polite', 'rude', 'helpful', 'manager'] }
+      const EMOTION_KEYWORD_MAP = {
+        happy: EMOTIONS.HAPPINESS, happiness: EMOTIONS.HAPPINESS, joy: EMOTIONS.HAPPINESS, joyful: EMOTIONS.HAPPINESS, pleased: EMOTIONS.HAPPINESS, delighted: EMOTIONS.HAPPINESS, glad: EMOTIONS.HAPPINESS, cheerful: EMOTIONS.HAPPINESS, content: EMOTIONS.HAPPINESS, satisfied: EMOTIONS.HAPPINESS, delicious: EMOTIONS.HAPPINESS, tasty: EMOTIONS.HAPPINESS, fresh: EMOTIONS.HAPPINESS,
+        sad: EMOTIONS.SADNESS, sadness: EMOTIONS.SADNESS, unhappy: EMOTIONS.SADNESS, sorrow: EMOTIONS.SADNESS, crying: EMOTIONS.SADNESS, depressed: EMOTIONS.SADNESS, miserable: EMOTIONS.SADNESS, disappointed: EMOTIONS.SADNESS, disappointing: EMOTIONS.SADNESS, cold: EMOTIONS.SADNESS,
+        angry: EMOTIONS.ANGER, anger: EMOTIONS.ANGER, mad: EMOTIONS.ANGER, furious: EMOTIONS.ANGER, outraged: EMOTIONS.ANGER, irritated: EMOTIONS.ANGER, annoyed: EMOTIONS.ANGER, rage: EMOTIONS.ANGER, terrible: EMOTIONS.ANGER, awful: EMOTIONS.ANGER, horrible: EMOTIONS.ANGER, hate: EMOTIONS.ANGER, worst: EMOTIONS.ANGER, late: EMOTIONS.ANGER, delayed: EMOTIONS.ANGER,
+        afraid: EMOTIONS.FEAR, scared: EMOTIONS.FEAR, fear: EMOTIONS.FEAR, terrified: EMOTIONS.FEAR, anxious: EMOTIONS.FEAR, worried: EMOTIONS.FEAR, panic: EMOTIONS.FEAR,
+        love: EMOTIONS.LOVE, loved: EMOTIONS.LOVE, loving: EMOTIONS.LOVE, adore: EMOTIONS.LOVE, cherish: EMOTIONS.LOVE, fond: EMOTIONS.LOVE,
+        excited: EMOTIONS.EXCITEMENT, exciting: EMOTIONS.EXCITEMENT, thrilled: EMOTIONS.EXCITEMENT, amazing: EMOTIONS.EXCITEMENT, awesome: EMOTIONS.EXCITEMENT, fantastic: EMOTIONS.EXCITEMENT, wonderful: EMOTIONS.EXCITEMENT, quick: EMOTIONS.EXCITEMENT
       };
 
-      // 2. Engine Function
-      function analyze(raw) {
-        const text = (raw || '').trim().replace(/\s+/g, ' ');
-        if (!text) return { isValid: false, error: 'Please enter text' };
+      const ASPECT_TAXONOMY = {
+        food: { id: 'food', name: 'Food Quality', icon: '🍲', terms: new Set(['food', 'meal', 'dish', 'delicious', 'tasty', 'flavor', 'taste', 'cold', 'hot', 'fresh', 'stale', 'soggy', 'burnt', 'portion', 'chicken', 'pizza', 'burger', 'biryani', 'curry', 'rice', 'bread', 'yummy', 'greasy']) },
+        delivery: { id: 'delivery', name: 'Delivery Speed & Rider', icon: '🛵', terms: new Set(['delivery', 'courier', 'driver', 'rider', 'quick', 'fast', 'late', 'delay', 'delayed', 'arrive', 'arrived', 'time', 'order', 'waiting', 'wait']) },
+        packaging: { id: 'packaging', name: 'Packaging & Condition', icon: '📦', terms: new Set(['package', 'packaging', 'packed', 'box', 'container', 'spill', 'spilled', 'leak', 'leaked', 'seal', 'sealed', 'bag', 'tamper', 'wrap', 'wrapped']) },
+        service: { id: 'service', name: 'Customer Service', icon: '🛎️', terms: new Set(['service', 'staff', 'support', 'behavior', 'polite', 'rude', 'helpful', 'manager', 'call', 'response', 'attitude', 'help']) }
+      };
 
-        const tokens = (text.match(/[A-Za-z0-9]+(?:'[A-Za-z0-9]+)?|[.,;:!?()]/g) || []).map(m => ({
-          raw: m,
-          clean: m.toLowerCase().replace(/^[^\w]+|[^\w]+$/g, ''),
-          isPunct: /^[.,;:!?()]$/.test(m),
-          isBoundary: /[,.;:!?]/.test(m)
-        }));
+      const COMPLAINT_KEYWORDS = new Set(['terrible', 'awful', 'horrible', 'worst', 'hate', 'bad', 'poor', 'disappointing', 'disappointed', 'late', 'delayed', 'cold', 'stale', 'soggy', 'broken', 'useless', 'rude', 'spilled', 'leaked', 'slow', 'delay']);
 
-        const wordTokens = tokens.filter(t => !t.isPunct);
-        let activeNegator = null;
-        let activeNegatorIdx = -1;
+      // 2. CORE NLP ANALYSIS ENGINE
+      function analyzeSentiment(rawInput) {
+        const normalized = (rawInput || '').trim().replace(/[\u2018\u2019]/g, "'").replace(/[\u201C\u201D]/g, '"').replace(/\s+/g, ' ');
+        if (!normalized) return { isValid: false, error: 'Please enter some text to analyze.' };
 
-        let totalScore = 0;
-        let posComp = 0;
-        let negComp = 0;
-        let hasContrastive = false;
+        const regex = /[A-Za-z0-9]+(?:'[A-Za-z0-9]+)?|[.,;:!?()]/g;
+        const matches = normalized.match(regex) || [];
+        const tokens = matches.map((match, index) => {
+          const isPunct = /^[.,;:!?()]$/.test(match);
+          return {
+            index,
+            raw: match,
+            clean: match.toLowerCase().replace(/^[^\w]+|[^\w]+$/g, ''),
+            isPunctuation: isPunct,
+            hasBoundary: /[,.;:!?]/.test(match)
+          };
+        });
+
+        const wordTokens = tokens.filter(t => !t.isPunctuation);
+        const totalWordCount = wordTokens.length;
+
         const detectedKeywords = [];
-        const emotionCounts = {};
+        const detectedEmotions = new Map();
+        const ruleSteps = [];
+
+        let activeNegator = null;
+        let activeNegatorIndex = -1;
+        let activeIntensifier = null;
+        let activeDiminisher = null;
+
+        let positiveComponent = 0;
+        let negativeComponent = 0;
+        let totalScore = 0;
+        let hasContrastiveConjunction = false;
+        let contrastiveWord = null;
+
+        ruleSteps.push({ stage: 'Normalization & Tokenization', description: `Normalized text into ${totalWordCount} word tokens.` });
 
         for (let i = 0; i < tokens.length; i++) {
-          const t = tokens[i];
-          if (t.isBoundary) {
+          const token = tokens[i];
+          if (token.hasBoundary) {
+            if (activeNegator) ruleSteps.push({ stage: 'Negation Reset', description: `Clause boundary "${token.raw}" reset active negation.` });
             activeNegator = null;
-            activeNegatorIdx = -1;
+            activeNegatorIndex = -1;
+            activeIntensifier = null;
+            activeDiminisher = null;
             continue;
           }
 
-          const w = t.clean;
-          if (!w) continue;
+          const word = token.clean;
+          if (!word) continue;
 
-          if (CONTRASTIVE.has(w)) {
-            hasContrastive = true;
+          if (CONTRASTIVE_CONJUNCTIONS.includes(word)) {
+            hasContrastiveConjunction = true;
+            contrastiveWord = word;
             activeNegator = null;
+            activeNegatorIndex = -1;
+            ruleSteps.push({ stage: 'Contrastive Conjunction', description: `Detected contrastive conjunction "${word}" indicating potential sentiment shift.` });
             continue;
           }
 
-          if (NEGATION_WORDS.has(w)) {
-            activeNegator = w;
-            activeNegatorIdx = i;
+          if (NEGATION_WORDS.has(word)) {
+            activeNegator = word;
+            activeNegatorIndex = i;
+            ruleSteps.push({ stage: 'Negation Detected', description: `Negation word "${word}" activated for next 3 tokens.` });
             continue;
           }
 
-          if (activeNegator && (i - activeNegatorIdx > 3)) {
+          if (activeNegator && i - activeNegatorIndex > 3) {
             activeNegator = null;
+            activeNegatorIndex = -1;
           }
 
-          if (Object.prototype.hasOwnProperty.call(SENTIMENT_LEXICON, w)) {
-            const baseWeight = SENTIMENT_LEXICON[w];
-            let effWeight = baseWeight;
-            const isNeg = !!activeNegator;
+          if (INTENSIFIERS[word]) {
+            activeIntensifier = { word, factor: INTENSIFIERS[word] };
+            ruleSteps.push({ stage: 'Intensifier Detected', description: `Intensifier "${word}" (x${activeIntensifier.factor}) applied.` });
+            continue;
+          }
 
-            if (isNeg) {
-              effWeight = baseWeight > 0 ? -Math.abs(baseWeight) : 1;
+          if (DIMINISHERS[word]) {
+            activeDiminisher = { word, factor: DIMINISHERS[word] };
+            ruleSteps.push({ stage: 'Diminisher Detected', description: `Diminisher "${word}" (x${activeDiminisher.factor}) applied.` });
+            continue;
+          }
+
+          if (Object.prototype.hasOwnProperty.call(SENTIMENT_LEXICON, word)) {
+            const baseWeight = SENTIMENT_LEXICON[word];
+            let effectiveWeight = baseWeight;
+            let modifierExplanation = 'Base weight';
+            const isNegated = !!activeNegator;
+            const negatorUsed = activeNegator;
+
+            if (activeIntensifier) {
+              effectiveWeight = effectiveWeight > 0 ? Math.round(effectiveWeight * activeIntensifier.factor) : -Math.round(Math.abs(effectiveWeight) * activeIntensifier.factor);
+              modifierExplanation = `Intensified by "${activeIntensifier.word}"`;
+              activeIntensifier = null;
+            } else if (activeDiminisher) {
+              effectiveWeight = effectiveWeight > 0 ? Math.max(0.5, effectiveWeight * activeDiminisher.factor) : -Math.max(0.5, Math.abs(effectiveWeight) * activeDiminisher.factor);
+              modifierExplanation = `Diminished by "${activeDiminisher.word}"`;
+              activeDiminisher = null;
             }
 
-            totalScore += effWeight;
-            if (effWeight > 0) posComp += effWeight;
-            else if (effWeight < 0) negComp += effWeight;
+            if (isNegated) {
+              if (baseWeight > 0) {
+                effectiveWeight = -Math.abs(effectiveWeight);
+                modifierExplanation = `Inverted by negation "${negatorUsed}" (+${baseWeight} → ${effectiveWeight})`;
+              } else {
+                effectiveWeight = 1;
+                modifierExplanation = `Inverted by negation "${negatorUsed}" (${baseWeight} → +1)`;
+              }
+            }
 
-            detectedKeywords.push({ word: w, raw: t.raw, baseWeight, effWeight, isNeg });
+            totalScore += effectiveWeight;
+            if (effectiveWeight > 0) positiveComponent += effectiveWeight;
+            else if (effectiveWeight < 0) negativeComponent += effectiveWeight;
+
+            detectedKeywords.push({ word, raw: token.raw, baseWeight, effectiveWeight, isNegated, negatorUsed, explanation: modifierExplanation });
+            ruleSteps.push({ stage: 'Keyword Scoring', description: `Keyword "${word}": ${modifierExplanation}, contributing ${effectiveWeight > 0 ? '+' : ''}${effectiveWeight}.` });
           }
 
-          for (const [emId, emData] of Object.entries(EMOTIONS)) {
-            if (emData.keywords.includes(w)) {
-              if (!activeNegator) {
-                emotionCounts[emId] = (emotionCounts[emId] || 0) + 1;
-              }
+          if (Object.prototype.hasOwnProperty.call(EMOTION_KEYWORD_MAP, word)) {
+            const emotion = EMOTION_KEYWORD_MAP[word];
+            if (activeNegator) {
+              ruleSteps.push({ stage: 'Emotion Negated', description: `Emotion "${emotion.name}" suppressed by negation "${activeNegator}".` });
+            } else {
+              const currentCount = detectedEmotions.get(emotion.id)?.count || 0;
+              detectedEmotions.set(emotion.id, { ...emotion, count: currentCount + 1, triggerWord: word });
+              ruleSteps.push({ stage: 'Emotion Trigger', description: `Word "${word}" matched emotion ${emotion.name} ${emotion.emoji}.` });
             }
           }
         }
 
-        let primaryEmotion = { name: 'Neutral', emoji: '😐', id: 'neutral' };
-        if (Object.keys(emotionCounts).length > 0) {
-          const topKey = Object.entries(emotionCounts).sort((a, b) => b[1] - a[1])[0][0];
-          primaryEmotion = { ...EMOTIONS[topKey], id: topKey };
+        let primaryEmotion = EMOTIONS.NEUTRAL;
+        if (detectedEmotions.size > 0) {
+          let maxCount = 0;
+          for (const em of detectedEmotions.values()) {
+            if (em.count > maxCount) {
+              maxCount = em.count;
+              primaryEmotion = em;
+            }
+          }
         }
 
         let classification = 'Neutral';
-        const kwCount = detectedKeywords.length;
-        if (kwCount > 0) {
-          const hasOpposing = posComp >= 1 && negComp <= -1;
-          const isStrongMixed = posComp >= 1.5 && Math.abs(negComp) >= 1.5;
+        let classificationReason = '';
+        const matchedKeywordsCount = detectedKeywords.length;
 
-          if (isStrongMixed || (hasContrastive && hasOpposing)) {
+        if (matchedKeywordsCount === 0) {
+          classification = 'Neutral';
+          classificationReason = 'No sentiment keywords were detected.';
+        } else {
+          const hasOpposingPolarity = positiveComponent >= 1 && negativeComponent <= -1;
+          const isStrongMixed = positiveComponent >= 1.5 && Math.abs(negativeComponent) >= 1.5;
+
+          if (isStrongMixed || (hasContrastiveConjunction && hasOpposingPolarity)) {
             classification = 'Mixed';
+            classificationReason = hasContrastiveConjunction
+              ? `Contrastive conjunction "${contrastiveWord}" connects opposing positive (+${positiveComponent}) and negative (${negativeComponent}) clauses.`
+              : `Both significant positive (+${positiveComponent}) and negative (${negativeComponent}) expressions are present.`;
           } else if (totalScore >= 3) {
             classification = 'Very Positive';
+            classificationReason = `Total score of +${totalScore} meets the threshold for Very Positive (score ≥ +3).`;
           } else if (totalScore >= 1) {
             classification = 'Positive';
+            classificationReason = `Total score of +${totalScore} falls in the Positive range (+1 to +2).`;
           } else if (totalScore <= -3) {
             classification = 'Very Negative';
+            classificationReason = `Total score of ${totalScore} meets the threshold for Very Negative (score ≤ -3).`;
           } else if (totalScore <= -1) {
             classification = 'Negative';
+            classificationReason = `Total score of ${totalScore} falls in the Negative range (-1 to -2).`;
           } else {
             classification = 'Neutral';
+            classificationReason = `Keywords balanced out to a neutral net score of 0.`;
           }
         }
 
         let ruleConfidence = 0;
-        if (kwCount > 0) {
-          ruleConfidence = Math.min(98, Math.round(45 + Math.min(30, kwCount * 14) + Math.min(20, Math.abs(totalScore) * 5)));
+        if (matchedKeywordsCount > 0) {
+          ruleConfidence = Math.min(98, Math.round(45 + Math.min(30, matchedKeywordsCount * 14) + Math.min(20, Math.abs(totalScore) * 5) + Math.min(10, Math.round((matchedKeywordsCount / Math.max(1, totalWordCount)) * 25))));
         }
 
         return {
           isValid: true,
-          input: text,
-          totalWordCount: wordTokens.length,
-          totalScore: Number(totalScore.toFixed(1)),
-          posComp,
-          negComp,
-          classification,
-          ruleConfidence,
-          primaryEmotion,
+          input: rawInput,
+          normalizedText: normalized,
+          totalWordCount,
+          tokens,
           detectedKeywords,
+          detectedEmotions: Array.from(detectedEmotions.values()),
+          primaryEmotion,
+          positiveComponent,
+          negativeComponent,
+          totalScore: Number(totalScore.toFixed(1)),
+          classification,
+          classificationReason,
+          ruleConfidence,
+          hasContrastiveConjunction,
+          contrastiveWord,
+          ruleSteps,
           timestamp: new Date().toISOString()
         };
       }
 
-      // 3. Application State & Storage
-      let sessionHistory = [];
+      // 3. STORAGE & SESSION MANAGEMENT
+      const STORAGE_KEYS = { THEME: 'sentiment_agent_theme', HISTORY: 'sentiment_agent_history' };
+      const Storage = {
+        saveTheme(t) { try { localStorage.setItem(STORAGE_KEYS.THEME, t); } catch (e) {} },
+        loadTheme() {
+          try {
+            const t = localStorage.getItem(STORAGE_KEYS.THEME);
+            if (t === 'light' || t === 'dark') return t;
+          } catch (e) {}
+          return window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+        },
+        saveHistory(h) { try { localStorage.setItem(STORAGE_KEYS.HISTORY, JSON.stringify(h.slice(0, 100))); } catch (e) {} },
+        loadHistory() {
+          try {
+            const raw = localStorage.getItem(STORAGE_KEYS.HISTORY);
+            if (raw) { const p = JSON.parse(raw); if (Array.isArray(p)) return p; }
+          } catch (e) {}
+          return [];
+        },
+        clearHistory() { try { localStorage.removeItem(STORAGE_KEYS.HISTORY); } catch (e) {} }
+      };
 
-      // DOM References
-      const navTabs = document.querySelectorAll('.nav-tab');
-      const viewPanels = document.querySelectorAll('.view-panel');
-      const reviewTextarea = document.getElementById('reviewTextarea');
-      const analyzeSubmitBtn = document.getElementById('analyzeSubmitBtn');
-      const clearInputBtn = document.getElementById('clearInputBtn');
-      const inputErrorAlert = document.getElementById('inputErrorAlert');
-      const charCountLabel = document.getElementById('charCountLabel');
-      const wordCountLabel = document.getElementById('wordCountLabel');
+      let history = Storage.loadHistory();
 
-      // KPI Elements
-      const kpiTotal = document.getElementById('kpiTotal');
-      const kpiPos = document.getElementById('kpiPos');
-      const kpiPosPct = document.getElementById('kpiPosPct');
-      const kpiNeg = document.getElementById('kpiNeg');
-      const kpiNegPct = document.getElementById('kpiNegPct');
-      const kpiAvg = document.getElementById('kpiAvg');
-      const kpiStatus = document.getElementById('kpiStatus');
-
-      // Results Elements
-      const resultSentimentPill = document.getElementById('resultSentimentPill');
-      const resultEmotionPill = document.getElementById('resultEmotionPill');
-      const resultScorePill = document.getElementById('resultScorePill');
-      const resultConfidencePill = document.getElementById('resultConfidencePill');
-      const resultWordsPill = document.getElementById('resultWordsPill');
-      const resultKeywordsContainer = document.getElementById('resultKeywordsContainer');
-      const resultExplanationText = document.getElementById('resultExplanationText');
-
-      // Navigation Switch
-      navTabs.forEach(tab => {
-        tab.addEventListener('click', () => {
-          const view = tab.dataset.view;
-          navTabs.forEach(t => {
-            t.classList.remove('bg-[var(--card)]', 'text-[var(--foreground)]', 'shadow-xs');
-            t.classList.add('text-[var(--muted-foreground)]');
-          });
-          tab.classList.add('bg-[var(--card)]', 'text-[var(--foreground)]', 'shadow-xs');
-          tab.classList.remove('text-[var(--muted-foreground)]');
-
-          viewPanels.forEach(p => {
-            if (p.id === `view-${view}`) p.classList.remove('hidden');
-            else p.classList.add('hidden');
-          });
-
-          renderCharts();
-        });
-      });
-
-      // Input Meta
-      function updateMeta() {
-        const val = reviewTextarea.value;
-        charCountLabel.textContent = `${val.length} character${val.length === 1 ? '' : 's'}`;
-        const words = val.trim() ? val.trim().split(/\s+/).length : 0;
-        wordCountLabel.textContent = `${words} word${words === 1 ? '' : 's'}`;
-      }
-      reviewTextarea.addEventListener('input', () => {
-        updateMeta();
-        inputErrorAlert.classList.add('hidden');
-      });
-
-      // Sample clicks
-      document.querySelectorAll('.sample-btn').forEach(btn => {
-        btn.addEventListener('click', () => {
-          reviewTextarea.value = btn.dataset.text;
-          updateMeta();
-          runAnalysis();
-        });
-      });
-
-      // Clear
-      clearInputBtn.addEventListener('click', () => {
-        reviewTextarea.value = '';
-        updateMeta();
-        inputErrorAlert.classList.add('hidden');
-        reviewTextarea.focus();
-      });
-
-      document.getElementById('clearAllBtn').addEventListener('click', () => {
-        if (confirm('Clear all session data?')) {
-          sessionHistory = [];
-          updateAllViews();
+      // 4. METRICS & SUMMARY
+      function getMetrics() {
+        const total = history.length;
+        if (total === 0) {
+          return { total: 0, positiveCount: 0, negativeCount: 0, neutralCount: 0, mixedCount: 0, positivePercent: 0, negativePercent: 0, neutralPercent: 0, mixedPercent: 0, averageScore: 0, formattedAverageScore: '0.0', overallSentiment: 'Neutral' };
         }
-      });
-
-      // Run Analysis
-      function runAnalysis() {
-        const raw = reviewTextarea.value;
-        inputErrorAlert.classList.add('hidden');
-        const res = analyze(raw);
-
-        if (!res.isValid) {
-          inputErrorAlert.classList.remove('hidden');
-          return;
-        }
-
-        sessionHistory.unshift(res);
-        updateAllViews();
-      }
-
-      analyzeSubmitBtn.addEventListener('click', runAnalysis);
-      reviewTextarea.addEventListener('keydown', (e) => {
-        if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
-          e.preventDefault();
-          runAnalysis();
-        }
-      });
-
-      // Rendering Helpers
-      function updateAllViews() {
-        const total = sessionHistory.length;
         let pos = 0, neg = 0, neu = 0, mix = 0, sumScore = 0;
-
-        sessionHistory.forEach(h => {
-          sumScore += h.totalScore;
-          if (h.classification === 'Positive' || h.classification === 'Very Positive') pos++;
-          else if (h.classification === 'Negative' || h.classification === 'Very Negative') neg++;
-          else if (h.classification === 'Mixed') mix++;
+        history.forEach(item => {
+          sumScore += item.totalScore || 0;
+          if (item.classification === 'Positive' || item.classification === 'Very Positive') pos++;
+          else if (item.classification === 'Negative' || item.classification === 'Very Negative') neg++;
+          else if (item.classification === 'Mixed') mix++;
           else neu++;
         });
-
-        const avg = total > 0 ? sumScore / total : 0;
-        const posPct = total > 0 ? Math.round((pos / total) * 100) : 0;
-        const negPct = total > 0 ? Math.round((neg / total) * 100) : 0;
-
-        kpiTotal.textContent = total;
-        kpiPos.textContent = pos;
-        kpiPosPct.textContent = `${posPct}%`;
-        kpiNeg.textContent = neg;
-        kpiNegPct.textContent = `${negPct}%`;
-        kpiAvg.textContent = avg > 0 ? `+${avg.toFixed(1)}` : avg.toFixed(1);
-
+        const avg = sumScore / total;
         let overall = 'Neutral';
         if (pos > neg && pos >= neu && pos >= mix) overall = 'Positive';
         else if (neg > pos && neg >= neu && neg >= mix) overall = 'Negative';
         else if (mix > pos && mix > neg) overall = 'Mixed';
-        kpiStatus.textContent = overall;
 
-        // Update workspace result card with latest
-        if (sessionHistory.length > 0) {
-          const latest = sessionHistory[0];
-          resultSentimentPill.textContent = latest.classification;
-          resultEmotionPill.textContent = `${latest.primaryEmotion.emoji} ${latest.primaryEmotion.name}`;
-          resultScorePill.textContent = latest.totalScore > 0 ? `+${latest.totalScore}` : latest.totalScore;
-          resultConfidencePill.textContent = `${latest.ruleConfidence}%`;
-          resultWordsPill.textContent = latest.totalWordCount;
-
-          if (latest.detectedKeywords.length > 0) {
-            resultKeywordsContainer.innerHTML = latest.detectedKeywords.map(k => {
-              const isPos = k.effWeight > 0;
-              const col = isPos ? 'bg-emerald-500/10 text-emerald-500 border-emerald-500/20' : 'bg-rose-500/10 text-rose-500 border-rose-500/20';
-              return `<span class="px-2 py-0.5 rounded text-[11px] font-mono border ${col}">${k.word} (${k.effWeight > 0 ? '+' : ''}${k.effWeight})</span>`;
-            }).join('');
-          } else {
-            resultKeywordsContainer.innerHTML = `<span class="text-xs text-[var(--muted-foreground)] italic">No keywords detected</span>`;
-          }
-
-          resultExplanationText.textContent = `Assigned "${latest.classification}" based on net score of ${latest.totalScore > 0 ? '+' : ''}${latest.totalScore} with Rule Confidence of ${latest.ruleConfidence}%.`;
-        }
-
-        renderCharts();
-        renderHistoryTable();
-        renderInsights();
+        return {
+          total,
+          positiveCount: pos,
+          negativeCount: neg,
+          neutralCount: neu,
+          mixedCount: mix,
+          positivePercent: Math.round((pos / total) * 100),
+          negativePercent: Math.round((neg / total) * 100),
+          neutralPercent: Math.round((neu / total) * 100),
+          mixedPercent: Math.round((mix / total) * 100),
+          averageScore: Number(avg.toFixed(2)),
+          formattedAverageScore: avg > 0 ? `+${avg.toFixed(1)}` : avg.toFixed(1),
+          overallSentiment: overall
+        };
       }
 
-      // Charts Rendering
-      function renderCharts() {
-        const total = sessionHistory.length;
-        let pos = 0, neg = 0, neu = 0, mix = 0;
-        sessionHistory.forEach(h => {
-          if (h.classification === 'Positive' || h.classification === 'Very Positive') pos++;
-          else if (h.classification === 'Negative' || h.classification === 'Very Negative') neg++;
-          else if (h.classification === 'Mixed') mix++;
-          else neu++;
-        });
+      function generateSummaryText() {
+        const m = getMetrics();
+        if (m.total === 0) return 'No messages analyzed in this session yet.';
+        return `SESSION SUMMARY\n\nYou analyzed ${m.total} message${m.total === 1 ? '' : 's'}.\n\nOverall sentiment:\n${m.overallSentiment}\n\nPositive messages:\n${m.positiveCount}\n\nNegative messages:\n${m.negativeCount}\n\nNeutral messages:\n${m.neutralCount}\n\nMixed messages:\n${m.mixedCount}\n\nAverage sentiment score:\n${m.formattedAverageScore}`;
+      }
 
-        // 1. Donut
-        const donutEl = document.getElementById('donutChartContainer');
-        if (total === 0) {
-          donutEl.innerHTML = `<span class="text-xs text-[var(--muted-foreground)]">No feedback analyzed yet</span>`;
-        } else {
-          const radius = 35;
-          const circ = 2 * Math.PI * radius;
+      // 5. DATA VISUALIZATION (SVG CHARTS)
+      const Charts = {
+        renderDonut(container, counts) {
+          if (!container) return;
+          const { positive = 0, negative = 0, neutral = 0, mixed = 0 } = counts;
+          const total = positive + negative + neutral + mixed;
+          if (total === 0) {
+            container.innerHTML = `<div class="flex flex-col items-center justify-center py-8 text-center text-muted"><p class="text-xs font-medium text-secondary">No sentiment data yet</p><span class="text-[11px] text-muted">Analyze your first review to view distribution</span></div>`;
+            return;
+          }
+          const segments = [
+            { key: 'Positive', count: positive, color: '#10b981', label: 'Positive' },
+            { key: 'Negative', count: negative, color: '#ef4444', label: 'Negative' },
+            { key: 'Neutral', count: neutral, color: '#64748b', label: 'Neutral' },
+            { key: 'Mixed', count: mixed, color: '#f59e0b', label: 'Mixed' }
+          ];
+          const radius = 38;
+          const circumference = 2 * Math.PI * radius;
           let offset = 0;
-          const slices = [
-            { count: pos, color: '#10b981', label: 'Positive' },
-            { count: neg, color: '#ef4444', label: 'Negative' },
-            { count: neu, color: '#64748b', label: 'Neutral' },
-            { count: mix, color: '#f59e0b', label: 'Mixed' }
-          ].map(s => {
-            if (s.count === 0) return '';
-            const len = (s.count / total) * circ;
-            const str = `<circle cx="50" cy="50" r="${radius}" fill="none" stroke="${s.color}" stroke-width="14" stroke-dasharray="${len.toFixed(2)} ${(circ - len).toFixed(2)}" stroke-dashoffset="${(-offset).toFixed(2)}" class="-rotate-90 origin-center transition-all duration-300" />`;
+          const circles = segments.map(seg => {
+            if (seg.count === 0) return '';
+            const pct = seg.count / total;
+            const len = pct * circumference;
+            const str = `<circle cx="50" cy="50" r="${radius}" fill="none" stroke="${seg.color}" stroke-width="12" stroke-dasharray="${len.toFixed(2)} ${(circumference - len).toFixed(2)}" stroke-dashoffset="${(-offset).toFixed(2)}" class="transition-all duration-300" />`;
             offset += len;
             return str;
           }).join('');
 
-          donutEl.innerHTML = `
-            <div class="flex items-center justify-around w-full">
-              <div class="relative w-32 h-32 flex items-center justify-center">
-                <svg viewBox="0 0 100 100" class="w-full h-full">
-                  <circle cx="50" cy="50" r="${radius}" fill="none" stroke="currentColor" stroke-width="14" class="text-[var(--border)] opacity-30" />
-                  ${slices}
-                </svg>
-                <div class="absolute inset-0 flex flex-col items-center justify-center font-mono">
-                  <span class="text-xl font-bold">${total}</span>
-                  <span class="text-[9px] uppercase text-[var(--muted-foreground)]">Total</span>
-                </div>
-              </div>
-              <div class="space-y-1 text-xs">
-                <div class="flex items-center gap-2"><span class="w-2 h-2 rounded-full bg-emerald-500"></span><span>Pos: ${pos} (${Math.round((pos/total)*100)}%)</span></div>
-                <div class="flex items-center gap-2"><span class="w-2 h-2 rounded-full bg-rose-500"></span><span>Neg: ${neg} (${Math.round((neg/total)*100)}%)</span></div>
-                <div class="flex items-center gap-2"><span class="w-2 h-2 rounded-full bg-slate-400"></span><span>Neu: ${neu} (${Math.round((neu/total)*100)}%)</span></div>
-                <div class="flex items-center gap-2"><span class="w-2 h-2 rounded-full bg-amber-500"></span><span>Mix: ${mix} (${Math.round((mix/total)*100)}%)</span></div>
-              </div>
-            </div>
-          `;
+          const legend = segments.map(seg => {
+            const pct = total > 0 ? Math.round((seg.count / total) * 100) : 0;
+            return `<div class="flex items-center justify-between text-xs py-1 px-1.5 rounded-lg"><div class="flex items-center gap-2"><span class="w-2.5 h-2.5 rounded-full" style="background-color: ${seg.color}"></span><span class="text-secondary font-medium">${seg.label}</span></div><div class="flex items-center gap-2 font-mono"><span class="text-primary font-semibold">${seg.count}</span><span class="text-muted text-[11px] w-9 text-right">${pct}%</span></div></div>`;
+          }).join('');
+
+          container.innerHTML = `<div class="flex flex-col sm:flex-row items-center justify-around gap-4 py-2"><div class="relative w-40 h-40 flex items-center justify-center flex-shrink-0"><svg viewBox="0 0 100 100" class="w-full h-full -rotate-90"><circle cx="50" cy="50" r="${radius}" fill="none" stroke="currentColor" stroke-width="12" class="text-border opacity-30" />${circles}</svg><div class="absolute inset-0 flex flex-col items-center justify-center pointer-events-none"><span class="text-2xl font-bold font-mono text-primary">${total}</span><span class="text-[10px] uppercase font-bold text-muted">Total</span></div></div><div class="w-full sm:w-48 flex flex-col gap-1"><div class="text-[10px] font-bold uppercase tracking-wider text-muted px-1.5 mb-1">Breakdown</div>${legend}</div></div>`;
+        },
+
+        renderTrend(container, items = []) {
+          if (!container) return;
+          if (items.length === 0) {
+            container.innerHTML = `<div class="flex flex-col items-center justify-center py-10 text-center text-muted"><p class="text-xs font-semibold text-secondary">No trend timeline available</p><span class="text-[11px] text-muted">Analyze multiple reviews to see trajectory</span></div>`;
+            return;
+          }
+          const data = items.slice(-20);
+          const n = data.length;
+          const w = 600, h = 180, padX = 40, padY = 25;
+          const innerW = w - padX * 2, innerH = h - padY * 2;
+          const zeroY = padY + innerH / 2;
+
+          const getX = (idx) => n === 1 ? padX + innerW / 2 : padX + (idx / (n - 1)) * innerW;
+          const getY = (val) => padY + ((3.5 - Math.max(-3.5, Math.min(3.5, val))) / 7) * innerH;
+
+          const pts = data.map((d, i) => `${getX(i).toFixed(1)},${getY(d.totalScore).toFixed(1)}`).join(' ');
+
+          const dots = data.map((d, i) => {
+            const cx = getX(i), cy = getY(d.totalScore);
+            const col = d.classification.includes('Positive') ? '#10b981' : d.classification.includes('Negative') ? '#ef4444' : d.classification === 'Mixed' ? '#f59e0b' : '#64748b';
+            const scoreStr = d.totalScore > 0 ? `+${d.totalScore}` : `${d.totalScore}`;
+            return `<circle cx="${cx.toFixed(1)}" cy="${cy.toFixed(1)}" r="4" fill="${col}" stroke="var(--bg-surface)" stroke-width="1.5"><title>#${i + 1}: ${scoreStr} (${d.classification})</title></circle>`;
+          }).join('');
+
+          container.innerHTML = `<div class="w-full overflow-x-auto"><svg viewBox="0 0 ${w} ${h}" class="w-full h-auto select-none"><line x1="${padX}" y1="${getY(3)}" x2="${w - padX}" y2="${getY(3)}" stroke="currentColor" stroke-dasharray="3 3" class="text-border opacity-30" /><text x="${padX - 8}" y="${getY(3) + 3}" text-anchor="end" class="text-[9px] fill-muted font-mono">+3</text><line x1="${padX}" y1="${zeroY}" x2="${w - padX}" y2="${zeroY}" stroke="currentColor" stroke-width="1.5" class="text-muted opacity-50" /><text x="${padX - 8}" y="${zeroY + 3}" text-anchor="end" class="text-[9px] fill-primary font-mono font-bold">0</text><text x="${w - padX + 6}" y="${zeroY + 3}" text-anchor="start" class="text-[9px] fill-muted font-sans font-medium">Neutral</text><line x1="${padX}" y1="${getY(-3)}" x2="${w - padX}" y2="${getY(-3)}" stroke="currentColor" stroke-dasharray="3 3" class="text-border opacity-30" /><text x="${padX - 8}" y="${getY(-3) + 3}" text-anchor="end" class="text-[9px] fill-muted font-mono">-3</text>${n > 1 ? `<polyline points="${pts}" fill="none" stroke="#3b82f6" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" />` : ''}${dots}</svg></div>`;
+        },
+
+        renderEmotions(container, freq = {}) {
+          if (!container) return;
+          const emList = [
+            { id: 'happiness', name: 'Happiness', emoji: '😊', color: '#10b981' },
+            { id: 'sadness', name: 'Sadness', emoji: '😢', color: '#3b82f6' },
+            { id: 'anger', name: 'Anger', emoji: '😡', color: '#ef4444' },
+            { id: 'fear', name: 'Fear', emoji: '😨', color: '#8b5cf6' },
+            { id: 'love', name: 'Love', emoji: '❤️', color: '#ec4899' },
+            { id: 'excitement', name: 'Excitement', emoji: '🤩', color: '#f59e0b' }
+          ];
+          const total = Object.values(freq).reduce((s, c) => s + c, 0);
+          if (total === 0) {
+            container.innerHTML = `<div class="flex flex-col items-center justify-center py-8 text-center text-muted"><p class="text-xs font-semibold text-secondary">No emotions detected yet</p></div>`;
+            return;
+          }
+          const max = Math.max(...Object.values(freq), 1);
+          container.innerHTML = `<div class="space-y-3 py-1">${emList.map(em => {
+            const count = freq[em.id] || 0;
+            const pct = Math.round((count / max) * 100);
+            return `<div class="space-y-1"><div class="flex items-center justify-between text-xs"><span class="flex items-center gap-1.5 font-medium text-secondary"><span>${em.emoji}</span><span>${em.name}</span></span><span class="text-primary font-semibold font-mono">${count}</span></div><div class="h-2 w-full bg-surface-subtle border border-border/40 rounded-full overflow-hidden"><div class="h-full rounded-full transition-all duration-300" style="width: ${pct}%; background-color: ${em.color}"></div></div></div>`;
+          }).join('')}</div>`;
         }
+      };
 
-        // 2. Trend Line Chart
-        const trendEl = document.getElementById('trendChartContainer');
-        if (total === 0) {
-          trendEl.innerHTML = `<span class="text-xs text-[var(--muted-foreground)]">No trend data available</span>`;
-        } else {
-          const chronological = [...sessionHistory].reverse().slice(-15);
-          const w = 320, h = 130, pad = 25;
-          const zeroY = h / 2;
-          const pts = chronological.map((c, i) => {
-            const x = chronological.length === 1 ? w / 2 : pad + (i / (chronological.length - 1)) * (w - pad * 2);
-            const y = zeroY - (c.totalScore / 3.5) * (h / 2 - 15);
-            return `${x.toFixed(1)},${y.toFixed(1)}`;
-          }).join(' ');
+      // 6. CUSTOMER FEEDBACK & ZOMATO ASPECT MINING
+      function extractInsights() {
+        const posMap = new Map(), negMap = new Map(), complaints = new Map();
+        const aspects = {
+          food: { ...ASPECT_TAXONOMY.FOOD, mentions: 0, positive: 0, negative: 0, neutral: 0 },
+          delivery: { ...ASPECT_TAXONOMY.DELIVERY, mentions: 0, positive: 0, negative: 0, neutral: 0 },
+          packaging: { ...ASPECT_TAXONOMY.PACKAGING, mentions: 0, positive: 0, negative: 0, neutral: 0 },
+          service: { ...ASPECT_TAXONOMY.SERVICE, mentions: 0, positive: 0, negative: 0, neutral: 0 }
+        };
 
-          trendEl.innerHTML = `
-            <svg viewBox="0 0 ${w} ${h}" class="w-full h-auto">
-              <line x1="${pad}" y1="${zeroY}" x2="${w - pad}" y2="${zeroY}" stroke="currentColor" stroke-dasharray="3 3" class="text-[var(--border)] opacity-60" />
-              <text x="${pad - 6}" y="${zeroY + 3}" text-anchor="end" class="text-[9px] fill-[var(--muted-foreground)] font-mono">0</text>
-              ${chronological.length > 1 ? `<polyline points="${pts}" fill="none" stroke="#3b82f6" stroke-width="2" />` : ''}
-              ${chronological.map((c, i) => {
-                const x = chronological.length === 1 ? w / 2 : pad + (i / (chronological.length - 1)) * (w - pad * 2);
-                const y = zeroY - (c.totalScore / 3.5) * (h / 2 - 15);
-                const col = c.totalScore > 0 ? '#10b981' : c.totalScore < 0 ? '#ef4444' : '#64748b';
-                return `<circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="3.5" fill="${col}" stroke="var(--card)" stroke-width="1.5"><title>#${i+1}: ${c.totalScore}</title></circle>`;
-              }).join('')}
-            </svg>
-          `;
-        }
+        history.forEach(rev => {
+          (rev.detectedKeywords || []).forEach(kw => {
+            const w = kw.word.toLowerCase();
+            if (kw.effectiveWeight > 0) posMap.set(w, (posMap.get(w) || 0) + 1);
+            else if (kw.effectiveWeight < 0) {
+              negMap.set(w, (negMap.get(w) || 0) + 1);
+              if (COMPLAINT_KEYWORDS.has(w)) complaints.set(w, (complaintMap.get(w) || 0) + 1);
+            }
+          });
 
-        // 3. Emotion Bar Chart
-        const emEl = document.getElementById('emotionBarChartContainer');
-        const emFreq = {};
-        sessionHistory.forEach(h => {
-          if (h.primaryEmotion && h.primaryEmotion.id !== 'neutral') {
-            emFreq[h.primaryEmotion.id] = (emFreq[h.primaryEmotion.id] || 0) + 1;
+          const tokens = (rev.input || '').toLowerCase().match(/[A-Za-z0-9]+/g) || [];
+          for (const [key, def] of Object.entries(ASPECT_TAXONOMY)) {
+            if (tokens.some(t => def.terms.has(t))) {
+              aspects[key].mentions++;
+              if (rev.classification.includes('Positive')) aspects[key].positive++;
+              else if (rev.classification.includes('Negative')) aspects[key].negative++;
+              else aspects[key].neutral++;
+            }
           }
         });
-        const maxEm = Math.max(...Object.values(emFreq), 1);
-        emEl.innerHTML = Object.entries(EMOTIONS).map(([id, em]) => {
-          const count = emFreq[id] || 0;
-          const pct = Math.round((count / maxEm) * 100);
-          return `
-            <div class="space-y-1 text-xs">
-              <div class="flex justify-between">
-                <span>${em.emoji} ${em.name}</span>
-                <span class="font-mono font-bold">${count}</span>
-              </div>
-              <div class="h-2 rounded-full bg-[var(--background)] overflow-hidden">
-                <div class="h-full rounded-full transition-all duration-300" style="width: ${pct}%; background-color: ${em.color}"></div>
-              </div>
-            </div>
-          `;
-        }).join('');
+
+        const sortDesc = m => Array.from(m.entries()).map(([term, count]) => ({ term, count })).sort((a, b) => b.count - a.count);
+        return {
+          topPos: sortDesc(posMap).slice(0, 6),
+          topNeg: sortDesc(negMap).slice(0, 6),
+          complaints: sortDesc(complaints).slice(0, 8),
+          aspects
+        };
       }
 
-      // History Table
-      function renderHistoryTable() {
-        const q = (document.getElementById('historySearchInput').value || '').toLowerCase().trim();
-        const filter = document.getElementById('historyFilterSelect').value;
-        const rowsEl = document.getElementById('historyTableRows');
-
-        const filtered = sessionHistory.filter(h => {
-          if (q && !h.input.toLowerCase().includes(q)) return false;
-          if (filter !== 'ALL' && h.classification !== filter) return false;
-          return true;
-        });
-
-        if (filtered.length === 0) {
-          rowsEl.innerHTML = `<tr><td colspan="5" class="p-6 text-center text-[var(--muted-foreground)]">No matching reviews.</td></tr>`;
-          return;
-        }
-
-        rowsEl.innerHTML = filtered.map(h => {
-          const timeStr = new Date(h.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-          const col = h.classification.includes('Positive') ? 'text-emerald-500' : h.classification.includes('Negative') ? 'text-rose-500' : 'text-slate-400';
-          return `
-            <tr class="hover:bg-[var(--background)]/50 transition">
-              <td class="p-3 font-medium max-w-xs truncate" title="${escapeHtml(h.input)}">"${escapeHtml(h.input)}"</td>
-              <td class="p-3 font-semibold ${col}">${h.classification}</td>
-              <td class="p-3 font-mono">${h.totalScore > 0 ? '+' : ''}${h.totalScore}</td>
-              <td class="p-3">${h.primaryEmotion.emoji} ${h.primaryEmotion.name}</td>
-              <td class="p-3 text-[var(--muted-foreground)] text-[11px]">${timeStr}</td>
-            </tr>
-          `;
-        }).join('');
+      // 7. TOAST SYSTEM
+      const toastContainer = document.getElementById('toastContainer');
+      function showToast(msg, type = 'info') {
+        if (!toastContainer) return;
+        const toast = document.createElement('div');
+        toast.className = `toast toast-${type}`;
+        const icons = { success: '✅', error: '❌', warning: '⚠️', info: 'ℹ️' };
+        toast.innerHTML = `<span class="toast-icon">${icons[type] || 'ℹ️'}</span><span class="flex-1">${escapeHtml(msg)}</span>`;
+        toastContainer.appendChild(toast);
+        requestAnimationFrame(() => toast.classList.add('show'));
+        setTimeout(() => {
+          toast.classList.remove('show');
+          setTimeout(() => toast.remove(), 300);
+        }, 3200);
       }
 
       function escapeHtml(str) {
@@ -792,65 +1297,368 @@
         return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#039;');
       }
 
-      document.getElementById('historySearchInput').addEventListener('input', renderHistoryTable);
-      document.getElementById('historyFilterSelect').addEventListener('change', renderHistoryTable);
-
-      // Insights & Zomato Aspects
-      function renderInsights() {
-        const posMap = {}, negMap = {};
-        sessionHistory.forEach(h => {
-          (h.detectedKeywords || []).forEach(k => {
-            if (k.effWeight > 0) posMap[k.word] = (posMap[k.word] || 0) + 1;
-            else if (k.effWeight < 0) negMap[k.word] = (negMap[k.word] || 0) + 1;
-          });
-        });
-
-        const topPos = Object.entries(posMap).sort((a,b)=>b[1]-a[1]).slice(0, 5);
-        const topNeg = Object.entries(negMap).sort((a,b)=>b[1]-a[1]).slice(0, 5);
-
-        document.getElementById('topPosWordsList').innerHTML = topPos.length > 0 ? topPos.map(([w, c]) => `<div class="flex justify-between"><span>${w}</span><span class="text-emerald-500">${c}x</span></div>`).join('') : '<span class="text-muted italic text-[11px]">None</span>';
-        document.getElementById('topNegWordsList').innerHTML = topNeg.length > 0 ? topNeg.map(([w, c]) => `<div class="flex justify-between"><span>${w}</span><span class="text-rose-500">${c}x</span></div>`).join('') : '<span class="text-muted italic text-[11px]">None</span>';
-
-        // Aspects
-        const gridEl = document.getElementById('aspectsCardsGrid');
-        gridEl.innerHTML = Object.entries(ASPECTS).map(([k, asp]) => {
-          let count = 0, p = 0, n = 0;
-          sessionHistory.forEach(h => {
-            const words = h.input.toLowerCase().split(/\W+/);
-            const hit = words.some(w => asp.terms.includes(w));
-            if (hit) {
-              count++;
-              if (h.classification.includes('Positive')) p++;
-              else if (h.classification.includes('Negative')) n++;
-            }
-          });
-
-          const pPct = count > 0 ? Math.round((p/count)*100) : 0;
-          const nPct = count > 0 ? Math.round((n/count)*100) : 0;
-
-          return `
-            <div class="p-3 bg-[var(--background)] border border-[var(--border)] rounded-xl space-y-1.5 text-xs">
-              <div class="flex justify-between font-semibold">
-                <span>${asp.icon} ${asp.name}</span>
-                <span class="text-muted text-[11px]">${count}x</span>
-              </div>
-              <div class="h-1.5 rounded-full bg-[var(--border)] flex overflow-hidden">
-                <div class="bg-emerald-500" style="width: ${pPct}%"></div>
-                <div class="bg-rose-500" style="width: ${nPct}%"></div>
-              </div>
-              <div class="flex justify-between text-[10px] text-muted">
-                <span class="text-emerald-500">${p} Pos</span>
-                <span class="text-rose-500">${n} Neg</span>
-              </div>
-            </div>
-          `;
-        }).join('');
+      function getBadgeStyle(sentiment) {
+        if (sentiment.includes('Positive')) return 'background-color: var(--sent-pos-bg); color: var(--sent-pos-text); border: 1px solid var(--sent-pos-border);';
+        if (sentiment.includes('Negative')) return 'background-color: var(--sent-neg-bg); color: var(--sent-neg-text); border: 1px solid var(--sent-neg-border);';
+        if (sentiment === 'Mixed') return 'background-color: var(--sent-mix-bg); color: var(--sent-mix-text); border: 1px solid var(--sent-mix-border);';
+        return 'background-color: var(--sent-neu-bg); color: var(--sent-neu-text); border: 1px solid var(--sent-neu-border);';
       }
 
-      // Initial Test Review
-      reviewTextarea.value = "The food was delicious and delivery was quick.";
-      updateMeta();
-      runAnalysis();
+      // 8. DOM BINDINGS & VIEW SWITCHING
+      const navItems = document.querySelectorAll('.sidebar-nav .nav-item');
+      const viewSections = document.querySelectorAll('.view-section');
+      const breadcrumbCurrent = document.getElementById('breadcrumbCurrent');
+      const VIEW_TITLES = { overview: 'Overview', analyzer: 'Sentiment Analyzer', history: 'Analysis History', emotions: 'Emotion Insights', analytics: 'Analytics & Reports', settings: 'Settings' };
+
+      let currentView = 'overview';
+      function switchView(viewName) {
+        if (!VIEW_TITLES[viewName]) return;
+        currentView = viewName;
+        navItems.forEach(item => item.dataset.view === viewName ? item.classList.add('active') : item.classList.remove('active'));
+        viewSections.forEach(sec => sec.id === `view-${viewName}` ? sec.classList.add('active') : sec.classList.remove('active'));
+        breadcrumbCurrent.textContent = VIEW_TITLES[viewName];
+        renderVisuals();
+      }
+
+      navItems.forEach(btn => btn.addEventListener('click', () => switchView(btn.dataset.view)));
+      document.querySelectorAll('[data-action="goto-analyzer"]').forEach(btn => btn.addEventListener('click', () => switchView('analyzer')));
+      document.querySelectorAll('[data-action="goto-history"]').forEach(btn => btn.addEventListener('click', () => switchView('history')));
+
+      // Sidebar & Mobile toggles
+      const appSidebar = document.getElementById('appSidebar');
+      document.getElementById('sidebarToggleBtn').addEventListener('click', () => appSidebar.classList.toggle('collapsed'));
+      document.getElementById('mobileMenuBtn').addEventListener('click', () => appSidebar.classList.toggle('mobile-open'));
+
+      // Theme toggle
+      const themeToggleBtn = document.getElementById('themeToggleBtn');
+      const themeIcon = document.getElementById('themeIcon');
+      function applyTheme(t) {
+        document.documentElement.setAttribute('data-theme', t);
+        Storage.saveTheme(t);
+        themeIcon.textContent = t === 'dark' ? '☀️' : '🌙';
+        renderVisuals();
+      }
+      applyTheme(Storage.loadTheme());
+      themeToggleBtn.addEventListener('click', () => {
+        const next = document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+        applyTheme(next);
+        showToast(`Switched to ${next} mode`, 'info');
+      });
+
+      // 9. WORKSPACE & ANALYSIS
+      const analyzerInput = document.getElementById('analyzerInput');
+      const workspaceCharCount = document.getElementById('workspaceCharCount');
+      const workspaceWordCount = document.getElementById('workspaceWordCount');
+      const workspaceErrorAlert = document.getElementById('workspaceErrorAlert');
+      const runAnalyzeBtn = document.getElementById('runAnalyzeBtn');
+      const analyzeBtnIcon = document.getElementById('analyzeBtnIcon');
+      const analyzeBtnText = document.getElementById('analyzeBtnText');
+      const clearWorkspaceBtn = document.getElementById('clearWorkspaceBtn');
+
+      function updateInputMeta() {
+        const txt = analyzerInput.value;
+        workspaceCharCount.textContent = `${txt.length} character${txt.length === 1 ? '' : 's'}`;
+        const words = txt.trim() ? txt.trim().split(/\s+/).length : 0;
+        workspaceWordCount.textContent = `${words} word${words === 1 ? '' : 's'}`;
+      }
+      analyzerInput.addEventListener('input', () => { updateInputMeta(); workspaceErrorAlert.classList.add('hidden'); });
+
+      document.querySelectorAll('.sample-pill-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          analyzerInput.value = btn.dataset.text;
+          updateInputMeta();
+          runAnalysis();
+        });
+      });
+
+      clearWorkspaceBtn.addEventListener('click', () => {
+        analyzerInput.value = '';
+        updateInputMeta();
+        workspaceErrorAlert.classList.add('hidden');
+        document.getElementById('analyzerResultEmpty').style.display = 'block';
+        document.getElementById('analyzerResultContent').style.display = 'none';
+        analyzerInput.focus();
+      });
+
+      function runAnalysis() {
+        const raw = analyzerInput.value;
+        workspaceErrorAlert.classList.add('hidden');
+        if (!raw || !raw.trim()) {
+          workspaceErrorAlert.classList.remove('hidden');
+          showToast('Please enter text to analyze', 'warning');
+          return;
+        }
+
+        runAnalyzeBtn.disabled = true;
+        analyzeBtnIcon.innerHTML = `<div class="spinner-sm"></div>`;
+        analyzeBtnText.textContent = 'Analyzing...';
+
+        setTimeout(() => {
+          runAnalyzeBtn.disabled = false;
+          analyzeBtnIcon.textContent = '⚡';
+          analyzeBtnText.textContent = 'Analyze Sentiment';
+
+          const res = analyzeSentiment(raw);
+          if (!res.isValid) {
+            workspaceErrorAlert.classList.remove('hidden');
+            showToast(res.error, 'error');
+            return;
+          }
+
+          history.unshift(res);
+          Storage.saveHistory(history);
+
+          renderResultCard(res);
+          renderAll();
+          showToast(`Classified as ${res.classification}`, 'success');
+        }, 320);
+      }
+
+      runAnalyzeBtn.addEventListener('click', runAnalysis);
+      analyzerInput.addEventListener('keydown', (e) => {
+        if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
+          e.preventDefault();
+          runAnalysis();
+        }
+      });
+
+      function renderResultCard(res) {
+        document.getElementById('analyzerResultEmpty').style.display = 'none';
+        const card = document.getElementById('analyzerResultContent');
+        card.style.display = 'flex';
+
+        const badge = document.getElementById('resSentimentBadge');
+        badge.textContent = res.classification;
+        badge.style.cssText = getBadgeStyle(res.classification);
+
+        const emBadge = document.getElementById('resEmotionBadge');
+        emBadge.innerHTML = `<span>${res.primaryEmotion.emoji}</span><span>${res.primaryEmotion.name}</span>`;
+
+        document.getElementById('resScoreVal').textContent = res.totalScore > 0 ? `+${res.totalScore}` : res.totalScore;
+        document.getElementById('resConfidenceVal').textContent = `${res.ruleConfidence}%`;
+        document.getElementById('resWordCountVal').textContent = res.totalWordCount;
+        document.getElementById('ruleConfidenceBadge').textContent = `Rule Confidence: ${res.ruleConfidence}%`;
+
+        const kwWrap = document.getElementById('resKeywordsWrap');
+        if (res.detectedKeywords && res.detectedKeywords.length > 0) {
+          kwWrap.innerHTML = res.detectedKeywords.map(k => {
+            const isPos = k.effectiveWeight > 0;
+            const cls = isPos ? 'pos' : 'neg';
+            return `<span class="keyword-chip ${cls} ${k.isNegated ? 'negated' : ''}" title="${k.explanation}"><span>${escapeHtml(k.word)}</span><span>${k.effectiveWeight > 0 ? '+' : ''}${k.effectiveWeight}</span></span>`;
+          }).join('');
+        } else {
+          kwWrap.innerHTML = `<span class="text-xs text-muted italic">No keywords detected</span>`;
+        }
+
+        document.getElementById('resPosContribution').textContent = `+${res.positiveComponent.toFixed(1)}`;
+        document.getElementById('resNegContribution').textContent = `${res.negativeComponent.toFixed(1)}`;
+        document.getElementById('resShortExplanation').textContent = res.classificationReason;
+
+        document.getElementById('traceStepsList').innerHTML = res.ruleSteps.map(s => `<li class="flex items-start gap-2"><span class="font-semibold text-brand min-w-[120px]">[${escapeHtml(s.stage)}]</span><span class="text-secondary">${escapeHtml(s.description)}</span></li>`).join('');
+      }
+
+      document.getElementById('toggleTraceBtn').addEventListener('click', () => {
+        const isHidden = document.getElementById('traceInnerContent').classList.toggle('hidden');
+        document.getElementById('traceToggleIcon').textContent = isHidden ? '▼' : '▲';
+      });
+
+      // 10. HISTORY TABLE, SEARCH, FILTER & DETAILS MODAL
+      let currentPage = 1;
+      const PAGE_SIZE = 6;
+      const historyTableSearch = document.getElementById('historyTableSearch');
+      const filterSentimentSelect = document.getElementById('filterSentimentSelect');
+      const sortHistorySelect = document.getElementById('sortHistorySelect');
+      const historyTableBody = document.getElementById('historyTableBody');
+
+      function renderHistoryTable() {
+        const q = (historyTableSearch.value || '').toLowerCase().trim();
+        const f = filterSentimentSelect.value;
+        const s = sortHistorySelect.value;
+
+        let list = history.filter(item => {
+          if (q && !item.input.toLowerCase().includes(q)) return false;
+          if (f !== 'ALL' && item.classification !== f) return false;
+          return true;
+        });
+
+        if (s === 'OLDEST') list = [...list].reverse();
+        else if (s === 'SCORE_HIGH') list.sort((a, b) => b.totalScore - a.totalScore);
+        else if (s === 'SCORE_LOW') list.sort((a, b) => a.totalScore - b.totalScore);
+
+        const totalItems = list.length;
+        const totalPages = Math.max(1, Math.ceil(totalItems / PAGE_SIZE));
+        if (currentPage > totalPages) currentPage = totalPages;
+
+        document.getElementById('historyCountBadge').textContent = `Showing ${totalItems} entries`;
+        document.getElementById('paginationInfo').textContent = `Page ${currentPage} of ${totalPages}`;
+        document.getElementById('prevPageBtn').disabled = currentPage <= 1;
+        document.getElementById('nextPageBtn').disabled = currentPage >= totalPages;
+
+        if (totalItems === 0) {
+          historyTableBody.innerHTML = `<tr><td colspan="6" class="table-empty-state">No matching reviews found.</td></tr>`;
+          return;
+        }
+
+        const start = (currentPage - 1) * PAGE_SIZE;
+        const pageItems = list.slice(start, start + PAGE_SIZE);
+
+        historyTableBody.innerHTML = pageItems.map(item => {
+          const gIdx = history.indexOf(item);
+          const time = item.timestamp ? new Date(item.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : 'Recent';
+          const scoreStr = item.totalScore > 0 ? `+${item.totalScore}` : item.totalScore;
+          return `<tr><td class="font-medium text-primary max-w-sm truncate" title="${escapeHtml(item.input)}">"${escapeHtml(item.input)}"</td><td><span class="kpi-badge" style="${getBadgeStyle(item.classification)}">${item.classification}</span></td><td class="font-mono font-semibold">${scoreStr}</td><td>${item.primaryEmotion.emoji} ${item.primaryEmotion.name}</td><td class="text-muted text-xs">${time}</td><td style="text-align: right;"><button class="btn-icon view-detail-btn" data-gidx="${gIdx}" style="padding: 4px 8px; font-size: 0.76rem;">👁️ Details</button></td></tr>`;
+        }).join('');
+
+        historyTableBody.querySelectorAll('.view-detail-btn').forEach(btn => {
+          btn.addEventListener('click', () => openModal(history[parseInt(btn.dataset.gidx, 10)]));
+        });
+      }
+
+      historyTableSearch.addEventListener('input', () => { currentPage = 1; renderHistoryTable(); });
+      filterSentimentSelect.addEventListener('change', () => { currentPage = 1; renderHistoryTable(); });
+      sortHistorySelect.addEventListener('change', () => { currentPage = 1; renderHistoryTable(); });
+      document.getElementById('prevPageBtn').addEventListener('click', () => { if (currentPage > 1) { currentPage--; renderHistoryTable(); } });
+      document.getElementById('nextPageBtn').addEventListener('click', () => { currentPage++; renderHistoryTable(); });
+
+      // Global Search input in Topbar
+      const globalSearchInput = document.getElementById('globalSearchInput');
+      globalSearchInput.addEventListener('input', () => {
+        if (currentView !== 'history') switchView('history');
+        historyTableSearch.value = globalSearchInput.value;
+        currentPage = 1;
+        renderHistoryTable();
+      });
+      window.addEventListener('keydown', (e) => {
+        if (e.key === '/' && document.activeElement !== analyzerInput && document.activeElement !== globalSearchInput) {
+          e.preventDefault();
+          globalSearchInput.focus();
+        }
+      });
+
+      // Details Modal
+      const detailsModal = document.getElementById('detailsModal');
+      function openModal(item) {
+        if (!item) return;
+        const scoreStr = item.totalScore > 0 ? `+${item.totalScore}` : item.totalScore;
+        document.getElementById('modalDetailBody').innerHTML = `<div class="space-y-3"><div><span class="text-[10px] font-bold uppercase tracking-wider text-muted">Original Review</span><p class="text-sm font-semibold text-primary mt-1 p-3 bg-surface-subtle border border-border rounded-xl">"${escapeHtml(item.input)}"</p></div><div class="grid grid-cols-3 gap-2 text-center"><div class="p-2 bg-surface-subtle border border-border rounded-xl"><span class="text-[10px] text-muted block uppercase">Classification</span><span class="text-xs font-bold inline-block mt-1 px-2.5 py-0.5 rounded-full" style="${getBadgeStyle(item.classification)}">${item.classification}</span></div><div class="p-2 bg-surface-subtle border border-border rounded-xl"><span class="text-[10px] text-muted block uppercase">Score</span><span class="text-sm font-bold font-mono mt-1 block">${scoreStr}</span></div><div class="p-2 bg-surface-subtle border border-border rounded-xl"><span class="text-[10px] text-muted block uppercase">Rule Confidence</span><span class="text-sm font-bold font-mono mt-1 block">${item.ruleConfidence}%</span></div></div><div><span class="text-[10px] font-bold uppercase tracking-wider text-muted">Detected Emotion</span><p class="text-xs font-medium text-secondary mt-1">${item.primaryEmotion.emoji} ${item.primaryEmotion.name}</p></div><div><span class="text-[10px] font-bold uppercase tracking-wider text-muted">Keywords</span><div class="flex flex-wrap gap-1 mt-1">${item.detectedKeywords.map(k => `<span class="keyword-chip ${k.effectiveWeight > 0 ? 'pos' : 'neg'}">${escapeHtml(k.word)}: ${k.explanation} (${k.effectiveWeight > 0 ? '+' : ''}${k.effectiveWeight})</span>`).join('')}</div></div><div><span class="text-[10px] font-bold uppercase tracking-wider text-muted">Execution Trace</span><ul class="mt-1 space-y-1 max-h-40 overflow-y-auto p-2 bg-surface-subtle border border-border rounded-xl text-[11px] text-muted">${item.ruleSteps.map(s => `<li><span class="font-semibold text-brand">[${escapeHtml(s.stage)}]</span> ${escapeHtml(s.description)}</li>`).join('')}</ul></div></div>`;
+        detailsModal.classList.add('open');
+      }
+      function closeModal() { detailsModal.classList.remove('open'); }
+      document.getElementById('closeDetailsModalBtn').addEventListener('click', closeModal);
+      document.getElementById('closeDetailsModalFooterBtn').addEventListener('click', closeModal);
+      detailsModal.addEventListener('click', (e) => { if (e.target === detailsModal) closeModal(); });
+
+      // Confirmation Modal
+      const confirmModal = document.getElementById('confirmModal');
+      function openConfirm() { confirmModal.classList.add('open'); }
+      function closeConfirm() { confirmModal.classList.remove('open'); }
+      document.getElementById('topbarClearSessionBtn').addEventListener('click', openConfirm);
+      document.getElementById('historyClearBtn').addEventListener('click', openConfirm);
+      document.getElementById('settingsClearBtn').addEventListener('click', openConfirm);
+      document.getElementById('cancelConfirmModalBtn').addEventListener('click', closeConfirm);
+      document.getElementById('cancelConfirmBtn').addEventListener('click', closeConfirm);
+      confirmModal.addEventListener('click', (e) => { if (e.target === confirmModal) closeConfirm(); });
+
+      document.getElementById('acceptConfirmBtn').addEventListener('click', () => {
+        history = [];
+        Storage.clearHistory();
+        closeConfirm();
+        renderAll();
+        document.getElementById('analyzerResultEmpty').style.display = 'block';
+        document.getElementById('analyzerResultContent').style.display = 'none';
+        analyzerInput.value = '';
+        updateInputMeta();
+        showToast('Session data and history reset', 'success');
+      });
+
+      // Export Buttons
+      document.getElementById('exportJsonBtn').addEventListener('click', () => {
+        const str = 'data:text/json;charset=utf-8,' + encodeURIComponent(JSON.stringify(history, null, 2));
+        const a = document.createElement('a'); a.href = str; a.download = `sentimentai_history_${Date.now()}.json`; a.click();
+        showToast('Exported history as JSON', 'success');
+      });
+      document.getElementById('exportCsvBtn').addEventListener('click', () => {
+        if (history.length === 0) { showToast('No history data to export', 'warning'); return; }
+        const rows = [['Review', 'Sentiment', 'Score', 'RuleConfidence', 'Emotion', 'Time'], ...history.map(h => [`"${(h.input || '').replace(/"/g, '""')}"`, h.classification, h.totalScore, `${h.ruleConfidence}%`, h.primaryEmotion.name, h.timestamp || ''])];
+        const str = 'data:text/csv;charset=utf-8,' + encodeURI(rows.map(r => r.join(',')).join('\n'));
+        const a = document.createElement('a'); a.href = str; a.download = `sentimentai_history_${Date.now()}.csv`; a.click();
+        showToast('Exported history as CSV', 'success');
+      });
+
+      window.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') { closeModal(); closeConfirm(); }
+      });
+
+      // 11. RE-RENDERING ORCHESTRATION
+      function renderVisuals() {
+        const m = getMetrics();
+        Charts.renderDonut(document.getElementById('overviewDonutContainer'), { positive: m.positiveCount, negative: m.negativeCount, neutral: m.neutralCount, mixed: m.mixedCount });
+        Charts.renderTrend(document.getElementById('overviewTrendContainer'), [...history].reverse());
+
+        const emFreq = {};
+        history.forEach(h => {
+          if (h.primaryEmotion && h.primaryEmotion.id && h.primaryEmotion.id !== 'neutral') {
+            emFreq[h.primaryEmotion.id] = (emFreq[h.primaryEmotion.id] || 0) + 1;
+          }
+        });
+        Charts.renderEmotions(document.getElementById('emotionsBarContainer'), emFreq);
+      }
+
+      function renderAll() {
+        const m = getMetrics();
+        document.getElementById('kpiTotalAnalyses').textContent = m.total;
+        document.getElementById('kpiTotalBadge').textContent = `${m.total} reviews`;
+        document.getElementById('kpiPosCount').textContent = m.positiveCount;
+        document.getElementById('kpiPosPercent').textContent = `${m.positivePercent}%`;
+        document.getElementById('kpiNegCount').textContent = m.negativeCount;
+        document.getElementById('kpiNegPercent').textContent = `${m.negativePercent}%`;
+        document.getElementById('kpiAvgScore').textContent = m.formattedAverageScore;
+        document.getElementById('kpiScoreBadge').textContent = m.overallSentiment;
+
+        if (m.total === 0) {
+          document.getElementById('overviewEmptyState').style.display = 'block';
+          document.getElementById('overviewChartsGrid').style.display = 'none';
+        } else {
+          document.getElementById('overviewEmptyState').style.display = 'none';
+          document.getElementById('overviewChartsGrid').style.display = 'grid';
+        }
+
+        // Recent table
+        const recent = history.slice(0, 5);
+        document.getElementById('overviewRecentTableBody').innerHTML = recent.length > 0
+          ? recent.map(item => `<tr><td class="font-medium text-primary max-w-xs truncate" title="${escapeHtml(item.input)}">"${escapeHtml(item.input)}"</td><td><span class="kpi-badge" style="${getBadgeStyle(item.classification)}">${item.classification}</span></td><td class="font-mono font-semibold">${item.totalScore > 0 ? '+' : ''}${item.totalScore}</td><td>${item.primaryEmotion.emoji} ${item.primaryEmotion.name}</td><td class="text-muted text-xs">${item.timestamp ? new Date(item.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : 'Recent'}</td></tr>`).join('')
+          : `<tr><td colspan="5" class="table-empty-state">No analyses yet in this session.</td></tr>`;
+
+        // Insights & Aspects
+        const ins = extractInsights();
+        document.getElementById('insightsTopPosList').innerHTML = ins.topPos.length > 0 ? ins.topPos.map(k => `<div class="flex justify-between py-0.5"><span class="font-mono text-emerald-500 font-semibold">${escapeHtml(k.term)}</span><span class="text-muted text-[11px] font-mono">${k.count}x</span></div>`).join('') : `<span class="text-muted italic text-[11px]">None yet</span>`;
+        document.getElementById('insightsTopNegList').innerHTML = ins.topNeg.length > 0 ? ins.topNeg.map(k => `<div class="flex justify-between py-0.5"><span class="font-mono text-rose-500 font-semibold">${escapeHtml(k.term)}</span><span class="text-muted text-[11px] font-mono">${k.count}x</span></div>`).join('') : `<span class="text-muted italic text-[11px]">None yet</span>`;
+        document.getElementById('insightsComplaintsList').innerHTML = ins.complaints.length > 0 ? ins.complaints.map(c => `<span class="px-2 py-0.5 bg-rose-500/10 border border-rose-500/20 text-rose-500 rounded text-[11px] font-mono font-medium">${escapeHtml(c.term)} (${c.count})</span>`).join('') : `<span class="text-xs text-muted italic">No complaints detected</span>`;
+
+        document.getElementById('aspectsContainer').innerHTML = Object.values(ins.aspects).map(asp => {
+          const pPct = asp.mentions > 0 ? Math.round((asp.positive / asp.mentions) * 100) : 0;
+          const nPct = asp.mentions > 0 ? Math.round((asp.negative / asp.mentions) * 100) : 0;
+          return `<div class="aspect-card"><div class="aspect-header"><span class="aspect-title"><span>${asp.icon}</span><span>${asp.name}</span></span><span class="aspect-mentions-badge">${asp.mentions} mention${asp.mentions === 1 ? '' : 's'}</span></div><div class="aspect-split-bar"><div class="aspect-split-pos" style="width: ${pPct}%;"></div><div class="aspect-split-neg" style="width: ${nPct}%;"></div><div class="aspect-split-neu" style="width: ${100 - pPct - nPct}%;"></div></div><div class="flex items-center justify-between text-[11px] text-muted"><span class="text-emerald-500 font-semibold">${asp.positive} Pos</span><span class="text-rose-500 font-semibold">${asp.negative} Neg</span><span>${asp.neutral} Neu</span></div></div>`;
+        }).join('');
+
+        document.getElementById('analyticsSummaryPre').textContent = generateSummaryText();
+
+        renderVisuals();
+        renderHistoryTable();
+      }
+
+      // INITIAL LOAD & RUN SAMPLE REVIEW IF FRESH
+      updateInputMeta();
+      if (history.length === 0) {
+        analyzerInput.value = "The food was delicious and delivery was quick.";
+        updateInputMeta();
+        runAnalysis();
+      } else {
+        renderResultCard(history[0]);
+        analyzerInput.value = history[0].input;
+        updateInputMeta();
+        renderAll();
+      }
     })();
   </script>
 </body>

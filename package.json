@@ -1,0 +1,19 @@
+{
+  "name": "rule-based-sentiment-agent",
+  "version": "1.0.0",
+  "description": "A rule-based sentiment and emotion analysis agent with explainable decision rules and interactive dashboard",
+  "type": "module",
+  "scripts": {
+    "test": "node tests/run_tests.js"
+  },
+  "keywords": [
+    "sentiment-analysis",
+    "rule-based",
+    "nlp",
+    "education",
+    "emotion-detection",
+    "negation-handling"
+  ],
+  "author": "Antigravity Pair Programmer",
+  "license": "MIT"
+}
