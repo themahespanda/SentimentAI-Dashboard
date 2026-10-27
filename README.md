@@ -2,6 +2,11 @@
 
 An educational, interactive, explainable Natural Language Processing (NLP) agent built strictly using **rule-based heuristics, predefined lexical dictionaries, negation scope tracking, and emotion recognition**.
 
+# SentimentAI Dashboard
+### AI-Powered Customer Sentiment Analysis
+
+[![🚀 Live Demo](https://img.shields.io/badge/🚀_LIVE_DEMO-Open_SentimentAI-6D28D9?style=for-the-badge)](https://themahespanda.github.io/SentimentAI-Dashboard/)
+
 > [!IMPORTANT]
 > **Zero Machine Learning / External AI**: This project does not use machine learning models, OpenAI APIs, LLM calls, or cloud classification services. All decisions are deterministic, transparent, and explainable, demonstrating foundational NLP and algorithmic linguistics.
 
